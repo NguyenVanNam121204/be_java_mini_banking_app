@@ -1,0 +1,19 @@
+{
+  "properties": [
+    {
+      "name": "app.jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret key for JWT token generation and validation"
+    },
+    {
+      "name": "app.jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "JWT access token expiration time in milliseconds (default: 18000000 = 5 hours)"
+    },
+    {
+      "name": "app.jwt.refresh-expiration",
+      "type": "java.lang.Long",
+      "description": "JWT refresh token expiration time in milliseconds (default: 604800000 = 7 days)"
+    }
+  ]
+}
