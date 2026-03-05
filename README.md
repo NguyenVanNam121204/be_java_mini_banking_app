@@ -16,9 +16,9 @@
 - [Architecture](#-architecture)
 - [Tech Stack](#-tech-stack)
 - [Quick Start](#-quick-start)
-- [Documentation](#-documentation)
 - [Project Structure](#-project-structure)
 - [API Endpoints](#-api-endpoints)
+- [Learning Resources](#-learning-resources)
 - [Contributing](#-contributing)
 
 ---
@@ -44,8 +44,9 @@ Modern banking application built with **Spring Boot** following **Clean Architec
 - [x] User Login with JWT tokens
 - [x] Role-based permissions (USER, ADMIN)
 - [x] Password encryption (BCrypt)
-- [ ] Refresh Token mechanism
-- [ ] Password Reset flow
+- [x] Refresh Token mechanism (with Token Rotation)
+- [x] Password Reset flow (via Email OTP)
+- [x] Email verification with OTP for new accounts
 
 ### 👨‍💼 User Management
 - [x] User entity with status management
@@ -113,8 +114,6 @@ Modern banking application built with **Spring Boot** following **Clean Architec
 └─────────────────────────────────────────────────────┘
 ```
 
-👉 See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed architecture explanation.
-
 ---
 
 ## 🛠️ Tech Stack
@@ -148,7 +147,7 @@ Modern banking application built with **Spring Boot** following **Clean Architec
 
 ### 1. Clone the repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/NguyenVanNam121204/be_java_mini_banking_app.git
 cd banking-app
 ```
 
@@ -196,18 +195,6 @@ POST http://localhost:8080/api/auth/login
 
 ---
 
-## 📚 Documentation
-
-| Document | Description |
-|----------|-------------|
-| [SETUP_GUIDE.md](SETUP_GUIDE.md) | Complete setup instructions |
-| [API_TESTING_GUIDE.md](API_TESTING_GUIDE.md) | API testing with Postman |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Architecture & design patterns |
-| [ADMIN_ACCOUNT.md](ADMIN_ACCOUNT.md) | Admin account details |
-| [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) | Project structure overview |
-
----
-
 ## 📁 Project Structure
 
 ```
@@ -221,12 +208,9 @@ banking-app/
 ├── src/main/resources/
 │   └── application.properties    # Configuration
 ├── pom.xml                       # Maven dependencies
-└── docs/                         # Documentation files
 ```
 
 **Total**: 62 Java files across 26 packages
-
-👉 See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for detailed structure.
 
 ---
 
@@ -235,18 +219,19 @@ banking-app/
 ### Authentication
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| POST | `/api/auth/register` | Register new user | ❌ |
-| POST | `/api/auth/login` | Login user | ❌ |
+| POST | `/api/auth/register` | Đăng ký tài khoản (gửi OTP) | ❌ |
+| POST | `/api/auth/verify-email` | Xác thực email bằng OTP | ❌ |
+| POST | `/api/auth/resend-verification`| Gửi lại mã OTP xác thực email| ❌ |
+| POST | `/api/auth/login` | Đăng nhập | ❌ |
+| POST | `/api/auth/refresh-token`| Làm mới Access Token (Rotation) | ❌ |
+| POST | `/api/auth/forgot-password`| Quên mật khẩu (gửi OTP) | ❌ |
+| POST | `/api/auth/reset-password` | Đặt lại mật khẩu bằng OTP | ❌ |
 | GET | `/api/auth/test` | Health check | ❌ |
 
 ### Coming Soon
 - Account Management APIs
 - Transaction APIs
 - Admin APIs
-- Password Reset
-- Refresh Token
-
-👉 See [API_TESTING_GUIDE.md](API_TESTING_GUIDE.md) for detailed API documentation.
 
 ---
 
@@ -265,7 +250,6 @@ banking-app/
 - ⏳ Rate limiting
 - ⏳ IP whitelisting for admin
 - ⏳ Audit logging
-- ⏳ Token refresh mechanism
 
 ---
 
@@ -280,6 +264,31 @@ mvn test
 - Unit tests for validators
 - Integration tests (planned)
 - E2E API tests (planned)
+
+---
+
+## 📖 Learning Resources
+
+Dành cho các bạn mới muốn tham khảo và học hỏi từ dự án này, dưới đây là các khái niệm và tài liệu tham khảo chính (Tech Stack) định hình nên kiến trúc và logic code của hệ thống:
+
+### 1. Hệ sinh thái Spring Boot & Java
+- **Spring Boot Core**: [Spring Boot Reference Guide](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
+- **Lombok**: [Project Lombok Features](https://projectlombok.org/features/) - Thư viện giúp giảm thiểu đáng kể các đoạn code khuôn mẫu (getters, setters, constructors,...).
+- **Spring Boot Mail**: Cách tích hợp JavaMailSender để gửi mã OTP tự động qua thư điện tử.
+
+### 2. Kiến trúc Server & Design Pattern
+- **Clean Architecture**: [The Clean Architecture - Uncle Bob](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) - Đây là lý do cốt lõi tạo sao dự án được chia rõ rệt thành: Presentation, Application, Domain và Infrastructure.
+- **SOLID Principles**: [Các nguyên lý SOLID trong Java](https://www.baeldung.com/solid-principles) - Chìa khóa để code dễ bảo trì và dễ scale mở rộng.
+- **Repository Pattern**: [Spring Data JPA Core Concepts](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories) - Tách biệt logic truy cập dữ liệu để các tầng nghiệp vụ phía trên không cần lo việc kết nối CSDL thao tác ra sao.
+
+### 3. Xác thực bảo mật (Security & JWT)
+- **Spring Security Architecture**: [Spring Security Documentation](https://docs.spring.io/spring-security/reference/index.html) - Trái tim của việc cấp quyền, chặn filter, mã hóa password bằng BCrypt.
+- **JSON Web Tokens (JWT)**: [Giới thiệu về JWT (jwt.io)](https://jwt.io/introduction) - Token Authorization mang theo thông tin user dưới khối mã hoá để đăng nhập không trạng thái (stateless).
+- **Refresh Token Pattern**: Nắm bắt luồng lấy lại Access Token mới tự động dựa trên Refresh Token lưu lâu dài hơn, đảm bảo trải nghiệm người dùng không phải login lại.
+
+### 4. Database & ORM (Quản trị Dữ liệu)
+- **PostgreSQL**: [PostgreSQL Official](https://www.postgresql.org/docs/) - Hệ quản trị cơ sở dữ liệu Relation Database lưu các Table người dùng, OTP Code và sau này là Giao dịch...
+- **Hibernate / JPA**: [Baeldung - Spring Data JPA Guide](https://www.baeldung.com/the-persistence-layer-with-spring-data-jpa) - Cách map các thực thể (Entity) trong Code dính liền xuống cấu trúc Cột bảng trong Database tự động. Thích hợp cho CRUD.
 
 ---
 
@@ -307,23 +316,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 👨‍💻 Author
-
-**Nguyen Van Nam**
-
----
-
 ## 🙏 Acknowledgments
 
 - Spring Boot team for the awesome framework
 - PostgreSQL community
 - Open source contributors
-
----
-
-## 📞 Support
-
-For support, email: nguyenvannam121204@gmail.com
 
 ---
 
@@ -353,16 +350,27 @@ For support, email: nguyenvannam121204@gmail.com
 - [ ] Reports
 
 ### Phase 5: Advanced Features
-- [ ] Password reset
+- [x] Password reset (OTP)
+- [x] Email notifications (OTP)
 - [ ] MFA
 - [ ] Rate limiting
-- [ ] Email notifications
 
 ---
 
 **Status**: ✅ Phase 1 Complete - Ready for Development
 
-**Last Updated**: March 5, 2026
+**Last Updated**: March 6, 2026
+
+---
+
+## 📞 Support
+For support, email: nguyenvannam121204@gmail.com
+
+---
+
+## 👨‍💻 Author
+
+**Nguyễn Văn Nam**
 
 ---
 
