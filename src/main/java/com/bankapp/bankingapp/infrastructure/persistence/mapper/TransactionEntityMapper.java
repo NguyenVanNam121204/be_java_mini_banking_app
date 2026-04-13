@@ -41,6 +41,7 @@ public class TransactionEntityMapper {
         entity.setToAccountId(domain.getToAccountId());
         entity.setDescription(domain.getDescription());
         entity.setInitiatedBy(domain.getInitiatedBy());
+        entity.setCompletedAt(domain.getCompletedAt());
         
         return entity;
     }

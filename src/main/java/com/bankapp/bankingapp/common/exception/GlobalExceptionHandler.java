@@ -110,6 +110,19 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.badRequest().body(error);
         }
 
+        @ExceptionHandler(IllegalStateException.class)
+        public ResponseEntity<ErrorResponseDto> handleIllegalState(
+                        IllegalStateException ex,
+                        HttpServletRequest request) {
+                String message = ex.getMessage() != null ? ex.getMessage() : "Hành động không hợp lệ";
+                ErrorResponseDto error = ErrorResponseDto.of(
+                                HttpStatus.BAD_REQUEST.value(),
+                                "Bad Request",
+                                message,
+                                request.getRequestURI());
+                return ResponseEntity.badRequest().body(error);
+        }
+
         @ExceptionHandler(RuntimeException.class)
         public ResponseEntity<ErrorResponseDto> handleRuntimeException(
                         RuntimeException ex,
@@ -132,5 +145,17 @@ public class GlobalExceptionHandler {
                                 "An unexpected error occurred",
                                 request.getRequestURI());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+
+        @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
+        public ResponseEntity<ErrorResponseDto> handleOptimisticLockingException(
+                        org.springframework.orm.ObjectOptimisticLockingFailureException ex,
+                        HttpServletRequest request) {
+                ErrorResponseDto error = ErrorResponseDto.of(
+                                HttpStatus.CONFLICT.value(),
+                                "Conflict",
+                                "Giao dịch đang được xử lý hoặc có xung đột cập nhật, vui lòng thử lại.",
+                                request.getRequestURI());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
         }
 }

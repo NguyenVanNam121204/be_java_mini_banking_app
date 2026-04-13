@@ -60,6 +60,12 @@ public class AccountServiceImpl implements IAccountService {
     public AccountResponseDto createAccount(CreateAccountRequestDto request) {
         User user = getCurrentAuthenticatedUser();
 
+        // CHỐNG SPAM MỞ THẺ: Kiểm tra số lượng thẻ đang có (ví dụ: Tối đa 3 thẻ/người)
+        List<Account> existingAccounts = accountRepository.findByUserId(user.getId());
+        if (existingAccounts.size() >= 3) {
+            throw new IllegalArgumentException("Bạn đã đạt giới hạn mở thẻ tối đa (3 thẻ) cho một tài khoản trực tuyến. Vui lòng liên hệ quầy giao dịch để được hỗ trợ mở thêm.");
+        }
+
         Account account = new Account(
                 null,
                 generateUniqueAccountNumber(),
