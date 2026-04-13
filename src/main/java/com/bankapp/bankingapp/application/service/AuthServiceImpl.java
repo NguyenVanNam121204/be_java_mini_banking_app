@@ -2,12 +2,12 @@ package com.bankapp.bankingapp.application.service;
 
 import com.bankapp.bankingapp.application.dto.request.*;
 import com.bankapp.bankingapp.application.dto.response.AuthResponseDto;
-import com.bankapp.bankingapp.application.interfaces.repository.OtpCodeRepository;
-import com.bankapp.bankingapp.application.interfaces.repository.RefreshTokenRepository;
-import com.bankapp.bankingapp.application.interfaces.repository.RoleRepository;
-import com.bankapp.bankingapp.application.interfaces.repository.UserRepository;
-import com.bankapp.bankingapp.application.interfaces.service.AuthService;
-import com.bankapp.bankingapp.application.interfaces.service.EmailService;
+import com.bankapp.bankingapp.application.interfaces.repository.IOtpCodeRepository;
+import com.bankapp.bankingapp.application.interfaces.repository.IRefreshTokenRepository;
+import com.bankapp.bankingapp.application.interfaces.repository.IRoleRepository;
+import com.bankapp.bankingapp.application.interfaces.repository.IUserRepository;
+import com.bankapp.bankingapp.application.interfaces.service.IAuthService;
+import com.bankapp.bankingapp.application.interfaces.service.IEmailService;
 import com.bankapp.bankingapp.application.mapper.AuthDtoMapper;
 import com.bankapp.bankingapp.application.mapper.UserDtoMapper;
 import com.bankapp.bankingapp.application.validator.UserValidator;
@@ -33,36 +33,36 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class AuthServiceImpl implements AuthService {
+public class AuthServiceImpl implements IAuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final IUserRepository userRepository;
+    private final IRoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final com.bankapp.bankingapp.infrastructure.security.jwt.JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
     private final UserValidator userValidator;
     private final UserDtoMapper userDtoMapper;
     private final AuthDtoMapper authDtoMapper;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final OtpCodeRepository otpCodeRepository;
-    private final EmailService emailService;
+    private final IRefreshTokenRepository refreshTokenRepository;
+    private final IOtpCodeRepository otpCodeRepository;
+    private final IEmailService emailService;
 
     @Value("${app.otp.expiration-minutes:10}")
     private int otpExpirationMinutes;
 
-    public AuthServiceImpl(UserRepository userRepository,
-            RoleRepository roleRepository,
+    public AuthServiceImpl(IUserRepository userRepository,
+            IRoleRepository roleRepository,
             PasswordEncoder passwordEncoder,
             com.bankapp.bankingapp.infrastructure.security.jwt.JwtTokenProvider jwtTokenProvider,
             AuthenticationManager authenticationManager,
             UserValidator userValidator,
             UserDtoMapper userDtoMapper,
             AuthDtoMapper authDtoMapper,
-            RefreshTokenRepository refreshTokenRepository,
-            OtpCodeRepository otpCodeRepository,
-            EmailService emailService) {
+            IRefreshTokenRepository refreshTokenRepository,
+            IOtpCodeRepository otpCodeRepository,
+            IEmailService emailService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;

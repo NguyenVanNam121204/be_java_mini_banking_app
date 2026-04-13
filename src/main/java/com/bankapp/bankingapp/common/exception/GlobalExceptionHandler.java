@@ -90,7 +90,7 @@ public class GlobalExceptionHandler {
                 ErrorResponseDto error = ErrorResponseDto.of(
                                 HttpStatus.NOT_FOUND.value(),
                                 "Not Found",
-                                ex.getMessage(),
+                                "User not found",
                                 request.getRequestURI());
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
@@ -99,10 +99,13 @@ public class GlobalExceptionHandler {
         public ResponseEntity<ErrorResponseDto> handleIllegalArgument(
                         IllegalArgumentException ex,
                         HttpServletRequest request) {
+                // Truyền message thực (VD: "Mã PIN không chính xác", "Số dư không đủ"...)
+                // để frontend có thể hiển thị lỗi có nghĩa cho người dùng
+                String message = ex.getMessage() != null ? ex.getMessage() : "Invalid request";
                 ErrorResponseDto error = ErrorResponseDto.of(
                                 HttpStatus.BAD_REQUEST.value(),
                                 "Bad Request",
-                                ex.getMessage(),
+                                message,
                                 request.getRequestURI());
                 return ResponseEntity.badRequest().body(error);
         }
@@ -114,7 +117,7 @@ public class GlobalExceptionHandler {
                 ErrorResponseDto error = ErrorResponseDto.of(
                                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                                 "Internal Server Error",
-                                "Lỗi: " + ex.getMessage(),
+                                "An error occurred",
                                 request.getRequestURI());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
@@ -126,7 +129,7 @@ public class GlobalExceptionHandler {
                 ErrorResponseDto error = ErrorResponseDto.of(
                                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                                 "Internal Server Error",
-                                "Lỗi server: " + ex.getMessage(),
+                                "An unexpected error occurred",
                                 request.getRequestURI());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }

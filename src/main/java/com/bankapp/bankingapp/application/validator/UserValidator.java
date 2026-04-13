@@ -20,6 +20,10 @@ public class UserValidator {
     private static final Pattern USERNAME_PATTERN = Pattern.compile(
             "^[a-zA-Z0-9_]{3,20}$");
 
+    // Password must be at least 8 chars with uppercase, lowercase, number, and special char
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile(
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$");
+
     public List<String> validateForCreation(String username, String email, String password, String pin) {
         List<String> errors = new ArrayList<>();
 
@@ -40,8 +44,8 @@ public class UserValidator {
         // Password validation
         if (password == null || password.isBlank()) {
             errors.add("Password không được để trống");
-        } else if (password.length() < 8) {
-            errors.add("Password phải có ít nhất 8 ký tự");
+        } else if (!PASSWORD_PATTERN.matcher(password).matches()) {
+            errors.add("Password phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt (@$!%*?&)");
         }
 
         // PIN validation
@@ -80,8 +84,8 @@ public class UserValidator {
 
         if (newPassword == null || newPassword.isBlank()) {
             errors.add("Mật khẩu mới không được để trống");
-        } else if (newPassword.length() < 8) {
-            errors.add("Mật khẩu mới phải có ít nhất 8 ký tự");
+        } else if (!PASSWORD_PATTERN.matcher(newPassword).matches()) {
+            errors.add("Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt (@$!%*?&)");
         } else if (oldPassword != null && oldPassword.equals(newPassword)) {
             errors.add("Mật khẩu mới phải khác mật khẩu cũ");
         }
@@ -98,8 +102,8 @@ public class UserValidator {
 
         if (newPassword == null || newPassword.isBlank()) {
             errors.add("Mật khẩu mới không được để trống");
-        } else if (newPassword.length() < 8) {
-            errors.add("Mật khẩu mới phải có ít nhất 8 ký tự");
+        } else if (!PASSWORD_PATTERN.matcher(newPassword).matches()) {
+            errors.add("Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt (@$!%*?&)");
         }
 
         return errors;

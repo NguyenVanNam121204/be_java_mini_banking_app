@@ -20,6 +20,7 @@ public class Transaction {
     private String referenceNumber;
     private TransactionType type;
     private BigDecimal amount;
+    @Setter
     private TransactionStatus status;
 
     private Long fromAccountId;
@@ -28,7 +29,10 @@ public class Transaction {
     private String description;
     private String initiatedBy;  // Username hoặc userId
 
+    @Setter
     private LocalDateTime createdAt;
+    
+    @Setter
     private LocalDateTime completedAt;
 
     public Transaction(Long id, String referenceNumber, TransactionType type, BigDecimal amount, Long fromAccountId, Long toAccountId, String description, String initiatedBy) {

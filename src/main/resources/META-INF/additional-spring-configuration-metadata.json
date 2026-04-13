@@ -1,0 +1,26 @@
+{
+  "properties": [
+    {
+      "name": "app.admin.email",
+      "type": "java.lang.String",
+      "description": "Admin account email address"
+    },
+    {
+      "name": "app.admin.password",
+      "type": "java.lang.String",
+      "description": "Admin account password (should be provided via environment variable)"
+    },
+    {
+      "name": "app.otp.expiration-minutes",
+      "type": "java.lang.Integer",
+      "description": "OTP code expiration time in minutes",
+      "defaultValue": 10
+    },
+    {
+      "name": "app.otp.max-attempts",
+      "type": "java.lang.Integer",
+      "description": "Maximum OTP verification attempts before locking",
+      "defaultValue": 5
+    }
+  ]
+}

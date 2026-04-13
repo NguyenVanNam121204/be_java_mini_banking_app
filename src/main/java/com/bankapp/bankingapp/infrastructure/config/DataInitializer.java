@@ -1,8 +1,8 @@
 package com.bankapp.bankingapp.infrastructure.config;
 
-import com.bankapp.bankingapp.application.interfaces.repository.PermissionRepository;
-import com.bankapp.bankingapp.application.interfaces.repository.RoleRepository;
-import com.bankapp.bankingapp.application.interfaces.repository.UserRepository;
+import com.bankapp.bankingapp.application.interfaces.repository.IPermissionRepository;
+import com.bankapp.bankingapp.application.interfaces.repository.IRoleRepository;
+import com.bankapp.bankingapp.application.interfaces.repository.IUserRepository;
 import com.bankapp.bankingapp.domain.model.Permission;
 import com.bankapp.bankingapp.domain.model.Role;
 import com.bankapp.bankingapp.domain.model.User;
@@ -19,20 +19,20 @@ public class DataInitializer implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PermissionRepository permissionRepository;
+    private final IUserRepository userRepository;
+    private final IRoleRepository roleRepository;
+    private final IPermissionRepository permissionRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @org.springframework.beans.factory.annotation.Value("${app.admin.email}")
+    @org.springframework.beans.factory.annotation.Value("${app.admin.email:${ADMIN_EMAIL:}}")
     private String adminEmail;
 
-    @org.springframework.beans.factory.annotation.Value("${app.admin.password}")
+    @org.springframework.beans.factory.annotation.Value("${app.admin.password:${ADMIN_PASSWORD:}}")
     private String adminPassword;
 
-    public DataInitializer(UserRepository userRepository,
-            RoleRepository roleRepository,
-            PermissionRepository permissionRepository,
+    public DataInitializer(IUserRepository userRepository,
+            IRoleRepository roleRepository,
+            IPermissionRepository permissionRepository,
             PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -44,6 +44,11 @@ public class DataInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         logger.info("🚀 Starting data initialization...");
+
+        if (adminEmail == null || adminEmail.isBlank() || adminPassword == null || adminPassword.isBlank()) {
+            logger.warn("Admin seed skipped: set app.admin.email and app.admin.password (or ADMIN_EMAIL and ADMIN_PASSWORD) to enable admin initialization.");
+            return;
+        }
 
         try {
             // Create Roles

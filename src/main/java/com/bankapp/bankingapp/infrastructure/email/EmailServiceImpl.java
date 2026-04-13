@@ -1,6 +1,6 @@
 package com.bankapp.bankingapp.infrastructure.email;
 
-import com.bankapp.bankingapp.application.interfaces.service.EmailService;
+import com.bankapp.bankingapp.application.interfaces.service.IEmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,13 +13,13 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 /**
- * Implementation của EmailService - thuộc Infrastructure layer
+ * Implementation của IEmailService - thuộc Infrastructure layer
  * Sử dụng Spring JavaMailSender để gửi email qua SMTP
  * 
  * @Async để gửi email không block luồng chính (không làm chậm API response)
  */
 @Service
-public class EmailServiceImpl implements EmailService {
+public class EmailServiceImpl implements IEmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 

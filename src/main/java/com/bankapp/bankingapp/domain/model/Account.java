@@ -22,8 +22,14 @@ public class Account {
     private BigDecimal balance;
     private AccountStatus status;
     private AccountType type;
+    
+    @Setter
+    private Long version;
 
+    @Setter
     private LocalDateTime createdAt;
+    
+    @Setter
     private LocalDateTime updatedAt;
 
     public Account(Long id,
@@ -38,6 +44,7 @@ public class Account {
         this.balance = balance != null ? balance : BigDecimal.ZERO;
         this.status = status;
         this.type = type;
+        this.version = 0L;
         this.createdAt = LocalDateTime.now();
     }
 

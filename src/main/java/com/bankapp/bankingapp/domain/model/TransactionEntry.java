@@ -30,6 +30,7 @@ public class TransactionEntry {
     private BigDecimal balanceBefore;
     private BigDecimal balanceAfter;
 
+    @Setter
     private LocalDateTime createdAt;
 
     public TransactionEntry(Long id,

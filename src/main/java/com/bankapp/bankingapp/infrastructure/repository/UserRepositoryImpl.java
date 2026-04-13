@@ -1,36 +1,42 @@
 package com.bankapp.bankingapp.infrastructure.repository;
 
-import com.bankapp.bankingapp.application.interfaces.repository.UserRepository;
+import com.bankapp.bankingapp.application.interfaces.repository.IUserRepository;
 import com.bankapp.bankingapp.domain.model.User;
 import com.bankapp.bankingapp.infrastructure.persistence.entity.UserEntity;
-import com.bankapp.bankingapp.infrastructure.persistence.mapper.UserMapper;
-import com.bankapp.bankingapp.infrastructure.persistence.repository.UserJpaRepository;
+import com.bankapp.bankingapp.infrastructure.persistence.mapper.UserEntityMapper;
+import com.bankapp.bankingapp.infrastructure.persistence.jpaRepository.UserJpaRepository;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
-@SuppressWarnings("null")
-public class UserRepositoryImpl implements UserRepository {
+public class UserRepositoryImpl implements IUserRepository {
 
     private final UserJpaRepository jpaRepository;
-    private final UserMapper mapper;
+    private final UserEntityMapper mapper;
 
-    public UserRepositoryImpl(UserJpaRepository jpaRepository, UserMapper mapper) {
+    public UserRepositoryImpl(UserJpaRepository jpaRepository, UserEntityMapper mapper) {
         this.jpaRepository = jpaRepository;
         this.mapper = mapper;
     }
 
     @Override
     @Transactional
-    public User save(User user) {
+    @SuppressWarnings("null")
+    public User save(@NotNull User user) {
         UserEntity entity;
-        
+
         if (user.getId() != null) {
             // Update existing
-            entity = jpaRepository.findById(user.getId())
+            @NotNull Long userId = Objects.requireNonNull(user.getId());
+            entity = jpaRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
             mapper.updateEntity(user, entity);
         } else {
@@ -38,35 +44,35 @@ public class UserRepositoryImpl implements UserRepository {
             entity = mapper.toEntity(user);
         }
 
-        UserEntity saved = jpaRepository.save(entity);
+        UserEntity saved = Objects.requireNonNull(jpaRepository.save(entity));
         return mapper.toDomain(saved);
     }
 
     @Override
-    public Optional<User> findById(Long id) {
-        return jpaRepository.findById(id)
+    public Optional<User> findById(@NotNull Long id) {
+        return jpaRepository.findById(Objects.requireNonNull(id))
                 .map(mapper::toDomain);
     }
 
     @Override
-    public Optional<User> findByUsername(String username) {
+    public Optional<User> findByUsername(@NotNull String username) {
         return jpaRepository.findByUsername(username)
                 .map(mapper::toDomain);
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
+    public Optional<User> findByEmail(@NotNull String email) {
         return jpaRepository.findByEmail(email)
                 .map(mapper::toDomain);
     }
 
     @Override
-    public boolean existsByUsername(String username) {
+    public boolean existsByUsername(@NotNull String username) {
         return jpaRepository.existsByUsername(username);
     }
 
     @Override
-    public boolean existsByEmail(String email) {
+    public boolean existsByEmail(@NotNull String email) {
         return jpaRepository.existsByEmail(email);
     }
 
@@ -78,10 +84,17 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public Page<User> findAllPaginated(@NonNull Pageable pageable) {
+        return jpaRepository.findAll(pageable)
+                .map(mapper::toDomain);
+    }
+
+    @Override
     @Transactional
-    public void delete(User user) {
+    public void delete(@NotNull User user) {
         if (user.getId() != null) {
-            jpaRepository.deleteById(user.getId());
+            @NotNull Long userId = Objects.requireNonNull(user.getId());
+            jpaRepository.deleteById(userId);
         }
     }
 }

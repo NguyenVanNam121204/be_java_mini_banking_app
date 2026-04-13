@@ -23,7 +23,10 @@ public class User {
     private String passwordHash;
     private String transactionPinHash;
 
+    @Setter
     private int pinFailedAttempts;
+
+    @Setter
     private LocalDateTime pinLockedUntil;
 
     private UserStatus status;
