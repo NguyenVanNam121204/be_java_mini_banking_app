@@ -25,11 +25,10 @@ public class RefreshTokenRepositoryImpl implements IRefreshTokenRepository {
 
     @Override
     @Transactional
-    @SuppressWarnings("null")
     public RefreshToken save(@NotNull RefreshToken token) {
         RefreshTokenEntity entity = mapper.toEntity(token);
-        RefreshTokenEntity saved = Objects.requireNonNull(jpaRepository.save(entity));
-        return mapper.toDomain(saved);
+        RefreshTokenEntity saved = jpaRepository.save(entity);
+        return mapper.toDomain(Objects.requireNonNull(saved));
     }
 
     @Override

@@ -26,13 +26,12 @@ public class OtpCodeRepositoryImpl implements IOtpCodeRepository {
 
     @Override
     @Transactional
-    @SuppressWarnings("null")
     public OtpCode save(@NotNull OtpCode otpCode) {
         OtpCodeEntity entity;
 
         if (otpCode.getId() != null) {
             // Update
-            @NotNull Long otpId = Objects.requireNonNull(otpCode.getId());
+            Long otpId = otpCode.getId();
             entity = jpaRepository.findById(otpId)
                     .orElseThrow(() -> new RuntimeException("OtpCode not found with id: " + otpId));
             mapper.updateEntity(otpCode, entity);
@@ -41,8 +40,8 @@ public class OtpCodeRepositoryImpl implements IOtpCodeRepository {
             entity = mapper.toEntity(otpCode);
         }
 
-        OtpCodeEntity saved = Objects.requireNonNull(jpaRepository.save(entity));
-        return mapper.toDomain(saved);
+        OtpCodeEntity saved = jpaRepository.save(entity);
+        return mapper.toDomain(Objects.requireNonNull(saved));
     }
 
     @Override

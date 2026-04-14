@@ -25,11 +25,10 @@ public class RoleRepositoryImpl implements IRoleRepository {
 
     @Override
     @Transactional
-    @SuppressWarnings("null")
     public Role save(@NotNull Role role) {
         RoleEntity entity = mapper.toEntity(role);
-        RoleEntity saved = Objects.requireNonNull(jpaRepository.save(entity));
-        return mapper.toDomain(saved);
+        RoleEntity saved = jpaRepository.save(entity);
+        return mapper.toDomain(Objects.requireNonNull(saved));
     }
 
     @Override

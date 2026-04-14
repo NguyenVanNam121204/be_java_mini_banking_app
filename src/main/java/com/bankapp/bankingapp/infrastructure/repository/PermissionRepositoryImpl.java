@@ -25,11 +25,10 @@ public class PermissionRepositoryImpl implements IPermissionRepository {
 
     @Override
     @Transactional
-    @SuppressWarnings("null")
     public Permission save(@NotNull Permission permission) {
         PermissionEntity entity = mapper.toEntity(permission);
-        PermissionEntity saved = Objects.requireNonNull(jpaRepository.save(entity));
-        return mapper.toDomain(saved);
+        PermissionEntity saved = jpaRepository.save(entity);
+        return mapper.toDomain(Objects.requireNonNull(saved));
     }
 
     @Override

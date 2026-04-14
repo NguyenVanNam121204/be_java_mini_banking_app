@@ -29,13 +29,12 @@ public class UserRepositoryImpl implements IUserRepository {
 
     @Override
     @Transactional
-    @SuppressWarnings("null")
     public User save(@NotNull User user) {
         UserEntity entity;
 
         if (user.getId() != null) {
             // Update existing
-            @NotNull Long userId = Objects.requireNonNull(user.getId());
+            Long userId = user.getId();
             entity = jpaRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
             mapper.updateEntity(user, entity);
@@ -44,8 +43,8 @@ public class UserRepositoryImpl implements IUserRepository {
             entity = mapper.toEntity(user);
         }
 
-        UserEntity saved = Objects.requireNonNull(jpaRepository.save(entity));
-        return mapper.toDomain(saved);
+        UserEntity saved = jpaRepository.save(entity);
+        return mapper.toDomain(Objects.requireNonNull(saved));
     }
 
     @Override
