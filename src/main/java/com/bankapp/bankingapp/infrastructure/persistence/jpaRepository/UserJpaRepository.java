@@ -19,4 +19,6 @@ public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
+
+    long countByStatus(com.bankapp.bankingapp.domain.model.enums.UserStatus status);
 }

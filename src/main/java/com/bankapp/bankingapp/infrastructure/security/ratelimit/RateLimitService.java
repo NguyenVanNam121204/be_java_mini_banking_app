@@ -33,10 +33,10 @@ public class RateLimitService {
     }
 
     /**
-     * Check if login attempt is allowed (5 per 15 minutes)
+     * Check if login attempt is allowed (50 per 15 minutes for development)
      */
     public boolean isLoginAllowed(String ipAddress) {
-        return tryConsume("login:" + ipAddress, 5, 5, Duration.ofMinutes(15));
+        return tryConsume("login:" + ipAddress, 50, 50, Duration.ofMinutes(15));
     }
 
     /**
