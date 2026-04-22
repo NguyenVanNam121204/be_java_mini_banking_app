@@ -18,7 +18,7 @@ import lombok.Setter;
 public class RegisterRequestDto {
 
     @NotBlank(message = "Username không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]{3,20}$", message = "Username phải từ 3-20 ký tự, chỉ chứa chữ, số và dấu gạch dưới")
+    @Pattern(regexp = "^[\\p{L}0-9\\s_]{3,20}$", message = "Username phải từ 3-20 ký tự, bao gồm chữ cái (có dấu), số, dấu cách và gạch dưới")
     @Schema(description = "Tên đăng nhập (3-20 ký tự, chỉ chữ, số, gạch dưới)", example = "john_doe")
     private String username;
 

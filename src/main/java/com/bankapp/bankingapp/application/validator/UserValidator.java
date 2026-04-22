@@ -18,7 +18,7 @@ public class UserValidator {
             "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
     private static final Pattern USERNAME_PATTERN = Pattern.compile(
-            "^[a-zA-Z0-9_]{3,20}$");
+            "^[\\p{L}0-9\\s_]{3,20}$");
 
     // Password must be at least 8 chars with uppercase, lowercase, number, and special char
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
@@ -31,7 +31,7 @@ public class UserValidator {
         if (username == null || username.isBlank()) {
             errors.add("Username không được để trống");
         } else if (!USERNAME_PATTERN.matcher(username).matches()) {
-            errors.add("Username phải từ 3-20 ký tự, chỉ chứa chữ, số và dấu gạch dưới");
+            errors.add("Username phải từ 3-20 ký tự, bao gồm chữ cái (có dấu), số, dấu cách và gạch dưới");
         }
 
         // Email validation
