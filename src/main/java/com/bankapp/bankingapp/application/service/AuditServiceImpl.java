@@ -5,7 +5,13 @@ import com.bankapp.bankingapp.application.interfaces.service.IAuditService;
 import com.bankapp.bankingapp.domain.model.AuditLog;
 import com.bankapp.bankingapp.domain.model.enums.AuditAction;
 import com.bankapp.bankingapp.domain.model.enums.AuditStatus;
+import com.bankapp.bankingapp.application.dto.response.AuditLogResponseDto;
+import com.bankapp.bankingapp.application.dto.response.PageResponseDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * AuditServiceImpl — application layer.
@@ -21,6 +27,31 @@ public class AuditServiceImpl implements IAuditService {
 
     public AuditServiceImpl(IAuditRepository auditRepository) {
         this.auditRepository = auditRepository;
+    }
+
+    @Override
+    public PageResponseDto<AuditLogResponseDto> getAllLogsPaginated(Pageable pageable, String username, String action, String date) {
+        Page<AuditLog> logPage = auditRepository.findAll(pageable, username, action, date);
+        
+        List<AuditLogResponseDto> content = logPage.getContent().stream()
+                .map(log -> AuditLogResponseDto.builder()
+                        .id(log.getId())
+                        .username(log.getPerformedBy())
+                        .action(log.getAction() != null ? log.getAction().name() : "UNKNOWN")
+                        .details(log.getDetails())
+                        .status(log.getStatus() != null ? log.getStatus().name() : "SUCCESS")
+                        .createdAt(log.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+
+        return PageResponseDto.<AuditLogResponseDto>builder()
+                .content(content)
+                .pageNo(logPage.getNumber())
+                .pageSize(logPage.getSize())
+                .totalElements(logPage.getTotalElements())
+                .totalPages(logPage.getTotalPages())
+                .last(logPage.isLast())
+                .build();
     }
 
     @Override

@@ -53,6 +53,14 @@ public class AuditLogEntityMapper {
                 entity.getDetails(),
                 AuditStatus.SUCCESS
         );
+        // Gan thu cong createdAt tu entity vi constructor mac dinh tu set LocalDateTime.now()
+        try {
+            java.lang.reflect.Field field = AuditLog.class.getDeclaredField("createdAt");
+            field.setAccessible(true);
+            field.set(log, entity.getCreatedAt());
+        } catch (Exception e) {
+            // Fallback neu reflection loi
+        }
         return log;
     }
 }

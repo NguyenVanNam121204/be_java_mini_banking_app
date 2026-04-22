@@ -6,6 +6,7 @@ import com.bankapp.bankingapp.application.interfaces.repository.IOtpCodeReposito
 import com.bankapp.bankingapp.application.interfaces.repository.IRefreshTokenRepository;
 import com.bankapp.bankingapp.application.interfaces.repository.IRoleRepository;
 import com.bankapp.bankingapp.application.interfaces.repository.IUserRepository;
+import com.bankapp.bankingapp.application.interfaces.service.IAuditService;
 import com.bankapp.bankingapp.application.interfaces.service.IAuthService;
 import com.bankapp.bankingapp.application.interfaces.service.IEmailService;
 import com.bankapp.bankingapp.application.mapper.AuthDtoMapper;
@@ -48,6 +49,7 @@ public class AuthServiceImpl implements IAuthService {
     private final IRefreshTokenRepository refreshTokenRepository;
     private final IOtpCodeRepository otpCodeRepository;
     private final IEmailService emailService;
+    private final IAuditService auditService;
 
     @Value("${app.otp.expiration-minutes:10}")
     private int otpExpirationMinutes;
@@ -62,7 +64,8 @@ public class AuthServiceImpl implements IAuthService {
             AuthDtoMapper authDtoMapper,
             IRefreshTokenRepository refreshTokenRepository,
             IOtpCodeRepository otpCodeRepository,
-            IEmailService emailService) {
+            IEmailService emailService,
+            IAuditService auditService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -74,6 +77,7 @@ public class AuthServiceImpl implements IAuthService {
         this.refreshTokenRepository = refreshTokenRepository;
         this.otpCodeRepository = otpCodeRepository;
         this.emailService = emailService;
+        this.auditService = auditService;
     }
 
     // =========================================================
@@ -110,6 +114,10 @@ public class AuthServiceImpl implements IAuthService {
 
         // Tạo và gửi OTP xác thực email
         sendOtp(savedUser, OtpType.EMAIL_VERIFICATION);
+
+        // Ghi Audit Log
+        auditService.logAction(savedUser.getUsername(), "REGISTER", 
+            String.format("Người dùng [%s] đăng ký tài khoản mới thành công qua Email: %s", savedUser.getUsername(), savedUser.getEmail()));
 
         // Không tạo JWT khi đăng ký (user chưa ACTIVE)
         // Chỉ trả về thông tin user, token là null
@@ -150,6 +158,10 @@ public class AuthServiceImpl implements IAuthService {
         // Tạo Refresh Token và lưu vào DB (xóa token cũ trước)
         String rawRefreshToken = jwtTokenProvider.generateRefreshToken(user.getUsername());
         saveRefreshTokenToDb(user, rawRefreshToken);
+
+        // Ghi Audit Log
+        auditService.logAction(user.getUsername(), "LOGIN", 
+            String.format("Người dùng [%s] đã đăng nhập thành công vào hệ thống", user.getUsername()));
 
         return authDtoMapper.toAuthResponseDto(
                 accessToken,
@@ -251,6 +263,10 @@ public class AuthServiceImpl implements IAuthService {
         // Cập nhật status → ACTIVE
         user.setStatus(com.bankapp.bankingapp.domain.model.enums.UserStatus.ACTIVE);
         userRepository.save(user);
+
+        // Ghi Audit Log
+        auditService.logAction(user.getUsername(), "EMAIL_VERIFIED", 
+            String.format("Người dùng [%s] đã xác thực Email thành công thông qua mã OTP", user.getUsername()));
 
         logger.info("✅ Email verified successfully for user: {}", user.getUsername());
     }

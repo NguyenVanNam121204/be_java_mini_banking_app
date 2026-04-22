@@ -23,7 +23,7 @@ public class AuditLogEntity {
     private String username;
 
     @Column(name = "action", nullable = false)
-    private String action;
+    private String action; // Luu tru duoi dang String (Enum name)
 
     @Column(name = "details", length = 1000)
     private String details;

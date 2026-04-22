@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,4 +19,11 @@ public interface TransactionJpaRepository extends JpaRepository<TransactionEntit
     Page<TransactionEntity> findTransactionsByAccountId(@Param("accountId") Long accountId, Pageable pageable);
 
     long countByCreatedAtAfter(java.time.LocalDateTime date);
+    long countByCreatedAtBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
+
+    @org.springframework.data.jpa.repository.Query("SELECT SUM(t.amount) FROM TransactionEntity t WHERE t.createdAt BETWEEN :start AND :end")
+    java.math.BigDecimal sumAmountByCreatedAtBetween(@org.springframework.data.repository.query.Param("start") java.time.LocalDateTime start, @org.springframework.data.repository.query.Param("end") java.time.LocalDateTime end);
+
+    @Query("SELECT t FROM TransactionEntity t ORDER BY t.createdAt DESC")
+    List<TransactionEntity> findRecentTransactions(Pageable pageable);
 }

@@ -64,6 +64,12 @@ public class TransactionRepositoryImpl implements ITransactionRepository {
     }
 
     @Override
+    public Page<Transaction> findAll(Pageable pageable) {
+        return transactionJpaRepository.findAll(pageable)
+                .map(transactionEntityMapper::toDomain);
+    }
+
+    @Override
     public TransactionEntry saveEntry(TransactionEntry entry) {
         TransactionEntryEntity entity = transactionEntryEntityMapper.toEntity(entry);
         java.util.Objects.requireNonNull(entity, "TransactionEntryEntity must not be null");

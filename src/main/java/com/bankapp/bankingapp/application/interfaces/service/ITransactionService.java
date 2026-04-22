@@ -11,4 +11,7 @@ public interface ITransactionService {
     TransactionResponseDto withdraw(WithdrawRequestDto request);
     TransactionResponseDto transfer(TransferRequestDto request);
     PageResponseDto<TransactionResponseDto> getTransactionHistory(Long accountId, int page, int size);
+    PageResponseDto<TransactionResponseDto> getAllTransactions(int page, int size);
+    TransactionResponseDto approveTransaction(Long transactionId);
+    TransactionResponseDto rejectTransaction(Long transactionId);
 }

@@ -3,6 +3,7 @@ package com.bankapp.bankingapp.application.service;
 import com.bankapp.bankingapp.application.dto.response.UserResponseDto;
 import com.bankapp.bankingapp.application.interfaces.repository.IUserRepository;
 import com.bankapp.bankingapp.application.interfaces.repository.IRoleRepository;
+import com.bankapp.bankingapp.application.interfaces.service.IAuditService;
 import com.bankapp.bankingapp.application.interfaces.service.IUserService;
 import com.bankapp.bankingapp.application.mapper.UserDtoMapper;
 import com.bankapp.bankingapp.domain.model.User;
@@ -28,12 +29,14 @@ public class UserServiceImpl implements IUserService {
     private final IRoleRepository roleRepository;
     private final UserDtoMapper userDtoMapper;
     private final PasswordEncoder passwordEncoder;
+    private final IAuditService auditService;
 
-    public UserServiceImpl(IUserRepository userRepository, IRoleRepository roleRepository, UserDtoMapper userDtoMapper, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(IUserRepository userRepository, IRoleRepository roleRepository, UserDtoMapper userDtoMapper, PasswordEncoder passwordEncoder, IAuditService auditService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userDtoMapper = userDtoMapper;
         this.passwordEncoder = passwordEncoder;
+        this.auditService = auditService;
     }
 
     @Override
@@ -172,6 +175,10 @@ public class UserServiceImpl implements IUserService {
         }
 
         User savedUser = userRepository.save(newUser);
+
+        // Ghi Audit Log
+        auditService.logAction("ADMIN", "ADMIN_CREATE_USER", "Admin tạo mới người dùng: " + savedUser.getUsername());
+
         return userDtoMapper.toUserResponseDto(savedUser);
     }
 
@@ -182,6 +189,9 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> new IllegalArgumentException("User không tồn tại"));
         user.lockUser();
         userRepository.save(user);
+        
+        // Ghi Audit Log
+        auditService.logAction("ADMIN", "LOCK_USER", "Admin khóa người dùng: " + user.getUsername());
     }
 
     @Override
@@ -191,6 +201,9 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> new IllegalArgumentException("User không tồn tại"));
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
+
+        // Ghi Audit Log
+        auditService.logAction("ADMIN", "UNLOCK_USER", "Admin mở khóa người dùng: " + user.getUsername());
     }
 
     @Override
@@ -202,6 +215,9 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> new IllegalArgumentException("Role " + roleName + " không tồn tại"));
         user.addRole(role);
         userRepository.save(user);
+
+        // Ghi Audit Log
+        auditService.logAction("ADMIN", "ASSIGN_ROLE", String.format("Admin gán quyền %s cho người dùng %s", roleName, user.getUsername()));
     }
 
     @Override
@@ -211,5 +227,8 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> new IllegalArgumentException("User không tồn tại"));
         user.forceChangePassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+
+        // Ghi Audit Log
+        auditService.logAction("ADMIN", "FORCE_RESET_PASSWORD", "Admin bắt buộc đổi mật khẩu cho người dùng: " + user.getUsername());
     }
 }

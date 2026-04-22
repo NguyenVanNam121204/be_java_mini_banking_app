@@ -16,7 +16,6 @@ public class DashboardStatsResponseDto {
     private long totalUsers;
     private long todayTransactions;
     private long lockedUsers;
-    private double uptime;
     private List<Map<String, Object>> chartData;
     private List<RecentActivityDto> recentActivities;
 
@@ -25,8 +24,12 @@ public class DashboardStatsResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class RecentActivityDto {
-        private String type;
-        private String description;
+        private Long id;
+        private String action;
+        private String username;
+        private String details;
+        private String status;
+        private java.time.LocalDateTime createdAt;
         private String timeAgo;
     }
 }
