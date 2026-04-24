@@ -1,5 +1,6 @@
 package com.bankapp.bankingapp.presentation.controller;
 
+import com.bankapp.bankingapp.application.dto.request.AuditLogFilterRequestDto;
 import com.bankapp.bankingapp.application.dto.response.ApiResponseDto;
 import com.bankapp.bankingapp.application.dto.response.AuditLogResponseDto;
 import com.bankapp.bankingapp.application.dto.response.PageResponseDto;
@@ -37,11 +38,20 @@ public class AuditController {
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String action,
             @RequestParam(required = false) String date) {
-        
-        Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
         PageRequest pageRequest = PageRequest.of(page, size, sort);
-        
-        PageResponseDto<AuditLogResponseDto> response = auditService.getAllLogsPaginated(pageRequest, username, action, date);
+
+        // Controller chiu trach nhiem dong goi request params thanh DTO
+        AuditLogFilterRequestDto filter = AuditLogFilterRequestDto.builder()
+                .username(username)
+                .actionGroup(action)
+                .date(date)
+                .build();
+
+        PageResponseDto<AuditLogResponseDto> response = auditService.getAllLogsPaginated(pageRequest, filter);
         return ResponseEntity.ok(ApiResponseDto.success("Lấy danh sách nhật ký thành công", response));
     }
 }

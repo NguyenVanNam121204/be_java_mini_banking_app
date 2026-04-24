@@ -5,12 +5,19 @@ import com.bankapp.bankingapp.domain.model.AuditLog;
 import com.bankapp.bankingapp.infrastructure.persistence.entity.AuditLogEntity;
 import com.bankapp.bankingapp.infrastructure.persistence.jpaRepository.AuditLogJpaRepository;
 import com.bankapp.bankingapp.infrastructure.persistence.mapper.AuditLogEntityMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
 /**
- * Implementation của IAuditRepository.
- * Lớp này nằm trong infrastructure — chịu trách nhiệm giao tiếp với JPA/DB.
- * AuditServiceImpl chỉ biết đến IAuditRepository (interface), không biết class này.
+ * Implementation cua IAuditRepository.
+ * Lop nay nam trong infrastructure — chiu trach nhiem giao tiep voi JPA/DB.
+ * AuditServiceImpl chi biet den IAuditRepository (interface), khong biet class nay.
  */
 @Repository
 public class AuditRepositoryImpl implements IAuditRepository {
@@ -27,43 +34,55 @@ public class AuditRepositoryImpl implements IAuditRepository {
     @Override
     public AuditLog save(AuditLog auditLog) {
         AuditLogEntity entity = auditLogEntityMapper.toEntity(auditLog);
-        java.util.Objects.requireNonNull(entity, "AuditLogEntity must not be null");
+        Objects.requireNonNull(entity, "AuditLogEntity must not be null");
         AuditLogEntity saved = auditLogJpaRepository.save(entity);
         return auditLogEntityMapper.toDomain(saved);
     }
 
     @Override
-    public org.springframework.data.domain.Page<AuditLog> findAll(org.springframework.data.domain.Pageable pageable, String username, String action, String date) {
-        // Chuan hoa du lieu loc
+    public Page<AuditLog> findAll(Pageable pageable, String username, String action, String date) {
         String usernameFilter = (username != null && !username.trim().isEmpty()) ? username.trim() : null;
         String dateFilter = (date != null && !date.trim().isEmpty()) ? date.trim() : null;
 
-        java.util.List<String> actions = null;
+        List<String> actions = null;
         if (action != null && !action.trim().isEmpty() && !action.equalsIgnoreCase("ALL")) {
-            actions = new java.util.ArrayList<>();
+            actions = new ArrayList<>();
             switch (action.toUpperCase()) {
                 case "AUTH":
-                    actions.addAll(java.util.Arrays.asList("LOGIN", "LOGOUT", "REGISTER", "PASSWORD_CHANGE", "PASSWORD_RESET", "PIN_CHANGE"));
+                    actions.addAll(Arrays.asList(
+                        "LOGIN", "LOGOUT", "REGISTER", "EMAIL_VERIFIED",
+                        "PASSWORD_CHANGE", "PASSWORD_RESET", "PIN_CHANGE"));
                     break;
                 case "TRANSACTION":
-                    actions.addAll(java.util.Arrays.asList("DEPOSIT", "WITHDRAW", "TRANSFER"));
+                    actions.addAll(Arrays.asList(
+                        "DEPOSIT", "WITHDRAW", "TRANSFER",
+                        "TRANSFER_PENDING", "TRANSFER_SUCCESS"));
                     break;
                 case "ADMIN":
-                    actions.addAll(java.util.Arrays.asList("USER_CREATED", "USER_UPDATED", "ACCOUNT_LOCKED", "ACCOUNT_UNLOCKED", "ROLE_ASSIGNED", "ACCOUNT_CREATED", "ACCOUNT_LOCKED_ADMIN", "ACCOUNT_UNLOCKED_ADMIN", "ACCOUNT_CLOSED", "UNAUTHORIZED_ACCESS"));
+                    actions.addAll(Arrays.asList(
+                        "USER_CREATED", "USER_UPDATED", "ACCOUNT_LOCKED", "ACCOUNT_UNLOCKED",
+                        "ROLE_ASSIGNED", "ACCOUNT_CREATED", "ACCOUNT_LOCKED_ADMIN",
+                        "ACCOUNT_UNLOCKED_ADMIN", "ACCOUNT_CLOSED",
+                        "ADMIN_APPROVE_TRANSACTION", "ADMIN_REJECT_TRANSACTION",
+                        "ADMIN_FORCE_RESET_PASSWORD", "UNAUTHORIZED_ACCESS"));
                     break;
                 default:
-                    actions.add(action); // Neu la action cu the
+                    actions.add(action.trim().toUpperCase());
                     break;
             }
         }
 
-        // Neu khong co bo loc nao, dung findAll mac dinh cua JPA de dam bao luon co du lieu
-        if (usernameFilter == null && actions == null && dateFilter == null) {
+        if (actions != null) {
+            return auditLogJpaRepository
+                    .findByUsernameActionsAndDate(usernameFilter, actions, dateFilter, pageable)
+                    .map(auditLogEntityMapper::toDomain);
+        } else if (usernameFilter != null || dateFilter != null) {
+            return auditLogJpaRepository
+                    .findByUsernameAndDate(usernameFilter, dateFilter, pageable)
+                    .map(auditLogEntityMapper::toDomain);
+        } else {
             return auditLogJpaRepository.findAll(pageable)
                     .map(auditLogEntityMapper::toDomain);
         }
-
-        return auditLogJpaRepository.findAllFiltered(usernameFilter, actions, dateFilter, pageable)
-                .map(auditLogEntityMapper::toDomain);
     }
 }

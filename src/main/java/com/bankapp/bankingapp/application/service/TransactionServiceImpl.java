@@ -9,6 +9,7 @@ import com.bankapp.bankingapp.application.interfaces.repository.ITransactionRepo
 import com.bankapp.bankingapp.application.interfaces.repository.IUserRepository;
 import com.bankapp.bankingapp.application.interfaces.service.IAuditService;
 import com.bankapp.bankingapp.application.interfaces.service.ITransactionService;
+import com.bankapp.bankingapp.domain.model.enums.AuditAction;
 import com.bankapp.bankingapp.application.mapper.TransactionDtoMapper;
 import com.bankapp.bankingapp.domain.model.Account;
 import com.bankapp.bankingapp.domain.model.Transaction;
@@ -119,8 +120,8 @@ public class TransactionServiceImpl implements ITransactionService {
         transactionRepository.saveEntry(entry);
 
         // Ghi Audit Log
-        auditService.logAction(initiatedBy.getUsername(), "DEPOSIT", 
-            String.format("Người dùng [%s] đã nạp thành công %s VND vào tài khoản %s", 
+        auditService.logAction(initiatedBy.getUsername(), AuditAction.DEPOSIT,
+            String.format("Người dùng [%s] đã nạp thành công %s VND vào tài khoản %s",
                 initiatedBy.getUsername(), request.getAmount(), savedAccount.getAccountNumber()));
 
         return transactionDtoMapper.toTransactionResponseDto(savedTransaction);
@@ -159,8 +160,8 @@ public class TransactionServiceImpl implements ITransactionService {
         transactionRepository.saveEntry(entry);
 
         // Ghi Audit Log
-        auditService.logAction(user.getUsername(), "WITHDRAW", 
-            String.format("Người dùng [%s] đã rút thành công %s VND từ tài khoản %s", 
+        auditService.logAction(user.getUsername(), AuditAction.WITHDRAW,
+            String.format("Người dùng [%s] đã rút thành công %s VND từ tài khoản %s",
                 user.getUsername(), request.getAmount(), savedAccount.getAccountNumber()));
 
         return transactionDtoMapper.toTransactionResponseDto(savedTransaction);
@@ -205,8 +206,8 @@ public class TransactionServiceImpl implements ITransactionService {
             // Giao dịch giá trị lớn -> Giữ trạng thái PENDING, không chuyển tiền ngay
             Transaction savedTransaction = transactionRepository.save(transaction);
             
-            auditService.logAction(user.getUsername(), "HIGH_VALUE_TRANSFER_PENDING", 
-                String.format("Giao dịch giá trị lớn (%s VND) đang chờ duyệt. Mã Ref: %s", 
+            auditService.logAction(user.getUsername(), AuditAction.TRANSFER_PENDING,
+                String.format("Giao dịch giá trị lớn (%s VND) đang chờ duyệt. Mã Ref: %s",
                     request.getAmount(), savedTransaction.getReferenceNumber()));
             
             return transactionDtoMapper.toTransactionResponseDto(savedTransaction);
@@ -237,8 +238,8 @@ public class TransactionServiceImpl implements ITransactionService {
         );
         transactionRepository.saveEntry(creditEntry);
 
-        auditService.logAction(user.getUsername(), "TRANSFER_SUCCESS", 
-            String.format("Người dùng [%s] đã chuyển thành công %s VND sang %s", 
+        auditService.logAction(user.getUsername(), AuditAction.TRANSFER_SUCCESS,
+            String.format("Người dùng [%s] đã chuyển thành công %s VND sang %s",
                 user.getUsername(), request.getAmount(), toAccount.getAccountNumber()));
 
         return transactionDtoMapper.toTransactionResponseDto(savedTransaction);
@@ -284,7 +285,7 @@ public class TransactionServiceImpl implements ITransactionService {
                 null, savedTransaction.getId(), toAccount.getId(), EntryType.CREDIT,
                 transaction.getAmount(), toBalanceBefore, toAccount.getBalance()));
 
-        auditService.logAction(getCurrentUsername(), "ADMIN_APPROVE_TRANSACTION", 
+        auditService.logAction(getCurrentUsername(), AuditAction.ADMIN_APPROVE_TRANSACTION,
             "Admin đã duyệt giao dịch mã Ref: " + savedTransaction.getReferenceNumber());
 
         return transactionDtoMapper.toTransactionResponseDto(savedTransaction);
@@ -303,7 +304,7 @@ public class TransactionServiceImpl implements ITransactionService {
         transaction.fail("Từ chối bởi Admin");
         Transaction savedTransaction = transactionRepository.save(transaction);
 
-        auditService.logAction(getCurrentUsername(), "ADMIN_REJECT_TRANSACTION", 
+        auditService.logAction(getCurrentUsername(), AuditAction.ADMIN_REJECT_TRANSACTION,
             "Admin đã từ chối giao dịch mã Ref: " + savedTransaction.getReferenceNumber());
 
         return transactionDtoMapper.toTransactionResponseDto(savedTransaction);

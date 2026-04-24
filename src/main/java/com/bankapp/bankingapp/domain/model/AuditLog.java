@@ -50,7 +50,33 @@ public class AuditLog {
         this.userAgent = userAgent;
         this.details = details;
         this.status = status;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now(); // Dung cho log MOI
+    }
+
+    /**
+     * Constructor de RECONSTRUCT tu DB — nhan createdAt tu persistence.
+     * Tranh viec tu set LocalDateTime.now() lam mat thoi gian goc.
+     */
+    public AuditLog(Long id,
+                    AuditAction action,
+                    String entityType,
+                    Long entityId,
+                    String performedBy,
+                    String ipAddress,
+                    String userAgent,
+                    String details,
+                    AuditStatus status,
+                    LocalDateTime createdAt) {
+        this.id = id;
+        this.action = action;
+        this.entityType = entityType;
+        this.entityId = entityId;
+        this.performedBy = performedBy;
+        this.ipAddress = ipAddress;
+        this.userAgent = userAgent;
+        this.details = details;
+        this.status = status;
+        this.createdAt = createdAt; // Dung gia tri tu DB
     }
 
     // BUSINESS LOGIC
@@ -75,6 +101,8 @@ public class AuditLog {
     public boolean isTransactionAction() {
         return action == AuditAction.DEPOSIT ||
                action == AuditAction.WITHDRAW ||
-               action == AuditAction.TRANSFER;
+               action == AuditAction.TRANSFER ||
+               action == AuditAction.TRANSFER_PENDING ||
+               action == AuditAction.TRANSFER_SUCCESS;
     }
 }

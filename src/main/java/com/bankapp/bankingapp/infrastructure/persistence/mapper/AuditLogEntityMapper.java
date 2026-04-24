@@ -42,7 +42,8 @@ public class AuditLogEntityMapper {
             action = AuditAction.UNAUTHORIZED_ACCESS;
         }
 
-        AuditLog log = new AuditLog(
+        // Dung constructor RECONSTRUCT (10 tham so) de giu nguyen createdAt tu DB
+        return new AuditLog(
                 entity.getId(),
                 action,
                 null,
@@ -51,16 +52,8 @@ public class AuditLogEntityMapper {
                 null,
                 null,
                 entity.getDetails(),
-                AuditStatus.SUCCESS
+                AuditStatus.SUCCESS,
+                entity.getCreatedAt() // Lay chinh xac tu DB, khong tu set moi
         );
-        // Gan thu cong createdAt tu entity vi constructor mac dinh tu set LocalDateTime.now()
-        try {
-            java.lang.reflect.Field field = AuditLog.class.getDeclaredField("createdAt");
-            field.setAccessible(true);
-            field.set(log, entity.getCreatedAt());
-        } catch (Exception e) {
-            // Fallback neu reflection loi
-        }
-        return log;
     }
 }

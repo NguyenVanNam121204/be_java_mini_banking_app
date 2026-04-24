@@ -7,12 +7,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import com.bankapp.bankingapp.application.interfaces.service.IJwtTokenProvider;
+
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.stream.Collectors;
 
 @Component
-public class JwtTokenProvider {
+public class JwtTokenProvider implements IJwtTokenProvider {
 
     private final SecretKey jwtSecret;
     private final long jwtExpiration;
@@ -27,6 +29,7 @@ public class JwtTokenProvider {
         this.refreshExpiration = refreshExpiration;
     }
 
+    @Override
     public String generateAccessToken(Authentication authentication) {
         String username = authentication.getName();
         Date now = new Date();
@@ -45,6 +48,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    @Override
     public String generateAccessTokenFromUsername(String username, String roles) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
@@ -58,6 +62,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    @Override
     public String generateRefreshToken(String username) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + refreshExpiration);
@@ -70,6 +75,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    @Override
     public String getUsernameFromToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(jwtSecret)
@@ -80,6 +86,7 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
+    @Override
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
@@ -92,10 +99,12 @@ public class JwtTokenProvider {
         }
     }
 
+    @Override
     public long getJwtExpiration() {
         return jwtExpiration;
     }
 
+    @Override
     public long getRefreshExpiration() {
         return refreshExpiration;
     }

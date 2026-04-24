@@ -5,6 +5,7 @@ import com.bankapp.bankingapp.application.interfaces.repository.IUserRepository;
 import com.bankapp.bankingapp.application.interfaces.repository.IRoleRepository;
 import com.bankapp.bankingapp.application.interfaces.service.IAuditService;
 import com.bankapp.bankingapp.application.interfaces.service.IUserService;
+import com.bankapp.bankingapp.domain.model.enums.AuditAction;
 import com.bankapp.bankingapp.application.mapper.UserDtoMapper;
 import com.bankapp.bankingapp.domain.model.User;
 import com.bankapp.bankingapp.domain.model.Role;
@@ -177,7 +178,7 @@ public class UserServiceImpl implements IUserService {
         User savedUser = userRepository.save(newUser);
 
         // Ghi Audit Log
-        auditService.logAction("ADMIN", "ADMIN_CREATE_USER", "Admin tạo mới người dùng: " + savedUser.getUsername());
+        auditService.logAction("ADMIN", AuditAction.USER_CREATED, "Admin tạo mới người dùng: " + savedUser.getUsername());
 
         return userDtoMapper.toUserResponseDto(savedUser);
     }
@@ -191,7 +192,7 @@ public class UserServiceImpl implements IUserService {
         userRepository.save(user);
         
         // Ghi Audit Log
-        auditService.logAction("ADMIN", "LOCK_USER", "Admin khóa người dùng: " + user.getUsername());
+        auditService.logAction("ADMIN", AuditAction.ACCOUNT_LOCKED, "Admin khóa người dùng: " + user.getUsername());
     }
 
     @Override
@@ -203,7 +204,7 @@ public class UserServiceImpl implements IUserService {
         userRepository.save(user);
 
         // Ghi Audit Log
-        auditService.logAction("ADMIN", "UNLOCK_USER", "Admin mở khóa người dùng: " + user.getUsername());
+        auditService.logAction("ADMIN", AuditAction.ACCOUNT_UNLOCKED, "Admin mở khóa người dùng: " + user.getUsername());
     }
 
     @Override
@@ -217,7 +218,7 @@ public class UserServiceImpl implements IUserService {
         userRepository.save(user);
 
         // Ghi Audit Log
-        auditService.logAction("ADMIN", "ASSIGN_ROLE", String.format("Admin gán quyền %s cho người dùng %s", roleName, user.getUsername()));
+        auditService.logAction("ADMIN", AuditAction.ROLE_ASSIGNED, String.format("Admin gán quyền %s cho người dùng %s", roleName, user.getUsername()));
     }
 
     @Override
@@ -229,6 +230,6 @@ public class UserServiceImpl implements IUserService {
         userRepository.save(user);
 
         // Ghi Audit Log
-        auditService.logAction("ADMIN", "FORCE_RESET_PASSWORD", "Admin bắt buộc đổi mật khẩu cho người dùng: " + user.getUsername());
+        auditService.logAction("ADMIN", AuditAction.ADMIN_FORCE_RESET_PASSWORD, "Admin bắt buộc đổi mật khẩu cho người dùng: " + user.getUsername());
     }
 }

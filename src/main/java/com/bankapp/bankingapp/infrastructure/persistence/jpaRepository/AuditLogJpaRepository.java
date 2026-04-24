@@ -14,13 +14,23 @@ import java.util.List;
 public interface AuditLogJpaRepository extends JpaRepository<AuditLogEntity, Long> {
     List<AuditLogEntity> findTop5ByOrderByCreatedAtDesc();
 
+    // Dung JPQL voi kiem tra null rieng le - tranh COALESCE voi List param
     @Query("SELECT a FROM AuditLogEntity a " +
            "WHERE (:username IS NULL OR LOWER(a.username) LIKE LOWER(CONCAT('%', :username, '%'))) " +
-           "AND (COALESCE(:actions, NULL) IS NULL OR a.action IN :actions) " +
            "AND (:date IS NULL OR function('to_char', a.createdAt, 'YYYY-MM-DD') = :date)")
-    Page<AuditLogEntity> findAllFiltered(
+    Page<AuditLogEntity> findByUsernameAndDate(
             @Param("username") String username,
-            @Param("actions") java.util.List<String> actions,
+            @Param("date") String date,
+            Pageable pageable);
+
+    // Query rieng khi co action filter
+    @Query("SELECT a FROM AuditLogEntity a " +
+           "WHERE (:username IS NULL OR LOWER(a.username) LIKE LOWER(CONCAT('%', :username, '%'))) " +
+           "AND a.action IN :actions " +
+           "AND (:date IS NULL OR function('to_char', a.createdAt, 'YYYY-MM-DD') = :date)")
+    Page<AuditLogEntity> findByUsernameActionsAndDate(
+            @Param("username") String username,
+            @Param("actions") List<String> actions,
             @Param("date") String date,
             Pageable pageable);
 }

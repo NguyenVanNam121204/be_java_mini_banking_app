@@ -2,6 +2,7 @@ package com.bankapp.bankingapp.application.service;
 
 import com.bankapp.bankingapp.application.interfaces.repository.IAuditRepository;
 import com.bankapp.bankingapp.application.interfaces.service.IAuditService;
+import com.bankapp.bankingapp.application.dto.request.AuditLogFilterRequestDto;
 import com.bankapp.bankingapp.domain.model.AuditLog;
 import com.bankapp.bankingapp.domain.model.enums.AuditAction;
 import com.bankapp.bankingapp.domain.model.enums.AuditStatus;
@@ -30,8 +31,14 @@ public class AuditServiceImpl implements IAuditService {
     }
 
     @Override
-    public PageResponseDto<AuditLogResponseDto> getAllLogsPaginated(Pageable pageable, String username, String action, String date) {
-        Page<AuditLog> logPage = auditRepository.findAll(pageable, username, action, date);
+    public PageResponseDto<AuditLogResponseDto> getAllLogsPaginated(Pageable pageable, AuditLogFilterRequestDto filter) {
+        // Unpack DTO - Service layer lay du lieu tu DTO roi truyen xuong Repository
+        Page<AuditLog> logPage = auditRepository.findAll(
+                pageable,
+                filter != null ? filter.getUsername() : null,
+                filter != null ? filter.getActionGroup() : null,
+                filter != null ? filter.getDate() : null
+        );
         
         List<AuditLogResponseDto> content = logPage.getContent().stream()
                 .map(log -> AuditLogResponseDto.builder()
@@ -55,18 +62,10 @@ public class AuditServiceImpl implements IAuditService {
     }
 
     @Override
-    public void logAction(String username, String action, String details) {
-        // Parse action string thành enum — fallback về UNAUTHORIZED_ACCESS nếu không hợp lệ
-        AuditAction auditAction;
-        try {
-            auditAction = AuditAction.valueOf(action.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            auditAction = AuditAction.UNAUTHORIZED_ACCESS;
-        }
-
+    public void logAction(String username, AuditAction action, String details) {
         AuditLog auditLog = new AuditLog(
                 null,
-                auditAction,
+                action,
                 null,
                 null,
                 username,
@@ -75,7 +74,6 @@ public class AuditServiceImpl implements IAuditService {
                 details,
                 AuditStatus.SUCCESS
         );
-
         auditRepository.save(auditLog);
     }
 }

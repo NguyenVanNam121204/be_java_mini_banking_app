@@ -7,8 +7,10 @@ import com.bankapp.bankingapp.application.interfaces.repository.IRefreshTokenRep
 import com.bankapp.bankingapp.application.interfaces.repository.IRoleRepository;
 import com.bankapp.bankingapp.application.interfaces.repository.IUserRepository;
 import com.bankapp.bankingapp.application.interfaces.service.IAuditService;
+import com.bankapp.bankingapp.domain.model.enums.AuditAction;
 import com.bankapp.bankingapp.application.interfaces.service.IAuthService;
 import com.bankapp.bankingapp.application.interfaces.service.IEmailService;
+import com.bankapp.bankingapp.application.interfaces.service.IJwtTokenProvider;
 import com.bankapp.bankingapp.application.mapper.AuthDtoMapper;
 import com.bankapp.bankingapp.application.mapper.UserDtoMapper;
 import com.bankapp.bankingapp.application.validator.UserValidator;
@@ -41,7 +43,7 @@ public class AuthServiceImpl implements IAuthService {
     private final IUserRepository userRepository;
     private final IRoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final com.bankapp.bankingapp.infrastructure.security.jwt.JwtTokenProvider jwtTokenProvider;
+    private final IJwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
     private final UserValidator userValidator;
     private final UserDtoMapper userDtoMapper;
@@ -116,7 +118,7 @@ public class AuthServiceImpl implements IAuthService {
         sendOtp(savedUser, OtpType.EMAIL_VERIFICATION);
 
         // Ghi Audit Log
-        auditService.logAction(savedUser.getUsername(), "REGISTER", 
+        auditService.logAction(savedUser.getUsername(), AuditAction.REGISTER,
             String.format("Người dùng [%s] đăng ký tài khoản mới thành công qua Email: %s", savedUser.getUsername(), savedUser.getEmail()));
 
         // Không tạo JWT khi đăng ký (user chưa ACTIVE)
@@ -160,7 +162,7 @@ public class AuthServiceImpl implements IAuthService {
         saveRefreshTokenToDb(user, rawRefreshToken);
 
         // Ghi Audit Log
-        auditService.logAction(user.getUsername(), "LOGIN", 
+        auditService.logAction(user.getUsername(), AuditAction.LOGIN,
             String.format("Người dùng [%s] đã đăng nhập thành công vào hệ thống", user.getUsername()));
 
         return authDtoMapper.toAuthResponseDto(
@@ -265,7 +267,7 @@ public class AuthServiceImpl implements IAuthService {
         userRepository.save(user);
 
         // Ghi Audit Log
-        auditService.logAction(user.getUsername(), "EMAIL_VERIFIED", 
+        auditService.logAction(user.getUsername(), AuditAction.EMAIL_VERIFIED,
             String.format("Người dùng [%s] đã xác thực Email thành công thông qua mã OTP", user.getUsername()));
 
         logger.info("✅ Email verified successfully for user: {}", user.getUsername());
