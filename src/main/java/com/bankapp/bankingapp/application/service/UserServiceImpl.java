@@ -52,8 +52,8 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<UserResponseDto> getAllUsersPaginated(@NonNull Pageable pageable) {
-        return userRepository.findAllPaginated(pageable)
+    public Page<UserResponseDto> getAllUsersPaginated(@NonNull Pageable pageable, String keyword) {
+        return userRepository.findAllPaginated(pageable, keyword)
                 .map(userDtoMapper::toUserResponseDto);
     }
 
@@ -186,6 +186,11 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public void lockUser(Long userId) {
+        User currentAdmin = getCurrentAuthenticatedUser();
+        if (currentAdmin.getId().equals(userId)) {
+            throw new IllegalArgumentException("Lỗi: Admin không được phép tự khóa tài khoản của chính mình!");
+        }
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User không tồn tại"));
         user.lockUser();

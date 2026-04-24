@@ -16,8 +16,8 @@ public interface AuditLogJpaRepository extends JpaRepository<AuditLogEntity, Lon
 
     // Dung JPQL voi kiem tra null rieng le - tranh COALESCE voi List param
     @Query("SELECT a FROM AuditLogEntity a " +
-           "WHERE (:username IS NULL OR LOWER(a.username) LIKE LOWER(CONCAT('%', :username, '%'))) " +
-           "AND (:date IS NULL OR function('to_char', a.createdAt, 'YYYY-MM-DD') = :date)")
+           "WHERE (:username = '' OR LOWER(a.username) LIKE LOWER(CONCAT('%', :username, '%'))) " +
+           "AND (:date = '' OR function('to_char', a.createdAt, 'YYYY-MM-DD') = :date)")
     Page<AuditLogEntity> findByUsernameAndDate(
             @Param("username") String username,
             @Param("date") String date,
@@ -25,12 +25,30 @@ public interface AuditLogJpaRepository extends JpaRepository<AuditLogEntity, Lon
 
     // Query rieng khi co action filter
     @Query("SELECT a FROM AuditLogEntity a " +
-           "WHERE (:username IS NULL OR LOWER(a.username) LIKE LOWER(CONCAT('%', :username, '%'))) " +
+           "WHERE (:username = '' OR LOWER(a.username) LIKE LOWER(CONCAT('%', :username, '%'))) " +
            "AND a.action IN :actions " +
-           "AND (:date IS NULL OR function('to_char', a.createdAt, 'YYYY-MM-DD') = :date)")
+           "AND (:date = '' OR function('to_char', a.createdAt, 'YYYY-MM-DD') = :date)")
     Page<AuditLogEntity> findByUsernameActionsAndDate(
             @Param("username") String username,
             @Param("actions") List<String> actions,
             @Param("date") String date,
             Pageable pageable);
+
+    @Query("SELECT a FROM AuditLogEntity a " +
+           "WHERE (:username = '' OR LOWER(a.username) LIKE LOWER(CONCAT('%', :username, '%'))) " +
+           "AND (:date = '' OR function('to_char', a.createdAt, 'YYYY-MM-DD') = :date)")
+    List<AuditLogEntity> findByUsernameAndDateForExport(
+            @Param("username") String username,
+            @Param("date") String date,
+            org.springframework.data.domain.Sort sort);
+
+    @Query("SELECT a FROM AuditLogEntity a " +
+           "WHERE (:username = '' OR LOWER(a.username) LIKE LOWER(CONCAT('%', :username, '%'))) " +
+           "AND a.action IN :actions " +
+           "AND (:date = '' OR function('to_char', a.createdAt, 'YYYY-MM-DD') = :date)")
+    List<AuditLogEntity> findByUsernameActionsAndDateForExport(
+            @Param("username") String username,
+            @Param("actions") List<String> actions,
+            @Param("date") String date,
+            org.springframework.data.domain.Sort sort);
 }

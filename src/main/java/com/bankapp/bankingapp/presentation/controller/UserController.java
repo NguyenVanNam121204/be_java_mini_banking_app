@@ -39,9 +39,10 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDto<Page<UserResponseDto>>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String keyword) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<UserResponseDto> users = userService.getAllUsersPaginated(pageable);
+        Page<UserResponseDto> users = userService.getAllUsersPaginated(pageable, keyword);
         return ResponseEntity.ok(ApiResponseDto.success("Lấy danh sách users thành công", users));
     }
 

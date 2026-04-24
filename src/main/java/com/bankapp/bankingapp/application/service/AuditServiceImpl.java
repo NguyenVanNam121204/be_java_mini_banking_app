@@ -11,6 +11,13 @@ import com.bankapp.bankingapp.application.dto.response.PageResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import org.springframework.data.domain.Sort;
+
+import com.bankapp.bankingapp.application.mapper.AuditDtoMapper;
+
+import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,9 +32,11 @@ import java.util.stream.Collectors;
 public class AuditServiceImpl implements IAuditService {
 
     private final IAuditRepository auditRepository;
+    private final AuditDtoMapper auditDtoMapper;
 
-    public AuditServiceImpl(IAuditRepository auditRepository) {
+    public AuditServiceImpl(IAuditRepository auditRepository, AuditDtoMapper auditDtoMapper) {
         this.auditRepository = auditRepository;
+        this.auditDtoMapper = auditDtoMapper;
     }
 
     @Override
@@ -41,14 +50,7 @@ public class AuditServiceImpl implements IAuditService {
         );
         
         List<AuditLogResponseDto> content = logPage.getContent().stream()
-                .map(log -> AuditLogResponseDto.builder()
-                        .id(log.getId())
-                        .username(log.getPerformedBy())
-                        .action(log.getAction() != null ? log.getAction().name() : "UNKNOWN")
-                        .details(log.getDetails())
-                        .status(log.getStatus() != null ? log.getStatus().name() : "SUCCESS")
-                        .createdAt(log.getCreatedAt())
-                        .build())
+                .map(auditDtoMapper::toAuditLogResponseDto)
                 .collect(Collectors.toList());
 
         return PageResponseDto.<AuditLogResponseDto>builder()
@@ -75,5 +77,44 @@ public class AuditServiceImpl implements IAuditService {
                 AuditStatus.SUCCESS
         );
         auditRepository.save(auditLog);
+    }
+
+    @Override
+    public byte[] exportLogsToCsv(AuditLogFilterRequestDto filter, Sort sort) {
+        List<AuditLog> logs = auditRepository.findAllForExport(
+                filter != null ? filter.getUsername() : null,
+                filter != null ? filter.getActionGroup() : null,
+                filter != null ? filter.getDate() : null,
+                sort
+        );
+
+        StringBuilder csv = new StringBuilder();
+        // UTF-8 BOM for Excel compatibility
+        csv.append('\ufeff');
+        
+        // Header
+        csv.append("ID,Thời Gian,Người Thực Hiện,Hành Động,Nội Dung Chi Tiết,Trạng Thái\n");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        for (AuditLog log : logs) {
+            csv.append(log.getId()).append(",");
+            csv.append(log.getCreatedAt() != null ? log.getCreatedAt().format(formatter) : "").append(",");
+            csv.append(escapeCsv(log.getPerformedBy())).append(",");
+            csv.append(log.getAction() != null ? log.getAction().name() : "UNKNOWN").append(",");
+            csv.append(escapeCsv(log.getDetails())).append(",");
+            csv.append(log.getStatus() != null ? log.getStatus().name() : "SUCCESS").append("\n");
+        }
+
+        return csv.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    private String escapeCsv(String value) {
+        if (value == null) return "";
+        String escaped = value.replace("\"", "\"\"");
+        if (escaped.contains(",") || escaped.contains("\"") || escaped.contains("\n")) {
+            return "\"" + escaped + "\"";
+        }
+        return escaped;
     }
 }

@@ -12,4 +12,9 @@ public interface IAuditService {
      */
     void logAction(String username, AuditAction action, String details);
     PageResponseDto<AuditLogResponseDto> getAllLogsPaginated(Pageable pageable, AuditLogFilterRequestDto filter);
+
+    /**
+     * Export all audit logs matching the filter to CSV format as a byte array.
+     */
+    byte[] exportLogsToCsv(AuditLogFilterRequestDto filter, org.springframework.data.domain.Sort sort);
 }

@@ -18,7 +18,7 @@ public interface IUserService {
     /**
      * Lấy danh sách users với pagination (ADMIN only)
      */
-    Page<UserResponseDto> getAllUsersPaginated(@NonNull Pageable pageable);
+    Page<UserResponseDto> getAllUsersPaginated(@NonNull Pageable pageable, String keyword);
 
     /**
      * Lấy thông tin profile của user hiện tại

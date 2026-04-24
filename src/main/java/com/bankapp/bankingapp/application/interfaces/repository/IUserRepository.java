@@ -24,7 +24,7 @@ public interface IUserRepository {
 
     List<User> findAll();
 
-    Page<User> findAllPaginated(@NonNull Pageable pageable);
+    Page<User> findAllPaginated(@NonNull Pageable pageable, String keyword);
 
     void delete(User user);
 }

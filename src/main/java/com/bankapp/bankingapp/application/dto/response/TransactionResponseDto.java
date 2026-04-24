@@ -19,7 +19,13 @@ public class TransactionResponseDto {
     private BigDecimal amount;
     private TransactionStatus status;
     private Long fromAccountId;
+    private String fromAccountNumber;
+    private String fromAccountOwner;
+    
     private Long toAccountId;
+    private String toAccountNumber;
+    private String toAccountOwner;
+    
     private String description;
     private String initiatedBy;
     private LocalDateTime createdAt;

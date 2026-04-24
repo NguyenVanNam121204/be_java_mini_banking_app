@@ -83,8 +83,9 @@ public class UserRepositoryImpl implements IUserRepository {
     }
 
     @Override
-    public Page<User> findAllPaginated(@NonNull Pageable pageable) {
-        return jpaRepository.findAll(pageable)
+    public Page<User> findAllPaginated(@NonNull Pageable pageable, String keyword) {
+        String safeKeyword = (keyword != null) ? keyword.trim() : "";
+        return jpaRepository.searchByKeyword(safeKeyword, pageable)
                 .map(mapper::toDomain);
     }
 
