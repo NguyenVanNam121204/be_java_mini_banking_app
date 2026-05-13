@@ -139,4 +139,16 @@ public class AuthController {
                 return ResponseEntity.ok(ApiResponseDto.success(
                                 "Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập lại.", null));
         }
+
+        @Operation(summary = "Xác thực OTP quên mật khẩu", description = "Chỉ xác thực mã OTP xem có đúng không trước khi cho phép nhập mật khẩu mới.")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Mã OTP hợp lệ"),
+                        @ApiResponse(responseCode = "400", description = "Mã OTP sai hoặc hết hạn", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+        })
+        @PostMapping("/verify-reset-otp")
+        public ResponseEntity<ApiResponseDto<Void>> verifyResetOtp(
+                        @Valid @RequestBody VerifyEmailRequestDto request) {
+                authService.verifyResetOtp(request);
+                return ResponseEntity.ok(ApiResponseDto.success("Mã OTP hợp lệ.", null));
+        }
 }

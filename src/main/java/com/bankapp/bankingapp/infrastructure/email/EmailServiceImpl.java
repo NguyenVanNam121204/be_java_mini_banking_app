@@ -96,9 +96,12 @@ public class EmailServiceImpl implements IEmailService {
                             <p>Cảm ơn bạn đã đăng ký tài khoản tại <strong>Banking App</strong>. Vui lòng sử dụng mã OTP bên dưới để xác thực tài khoản của bạn:</p>
                             <div class="otp-box">
                                 <div class="otp-code">%s</div>
-                                <div class="note">⏱️ Mã có hiệu lực trong <strong>10 phút</strong></div>
+                                <div class="note">⏱️ Mã có hiệu lực trong <strong>180 giây (3 phút)</strong></div>
                             </div>
-                            <p>Nếu bạn không thực hiện đăng ký này, vui lòng bỏ qua email này.</p>
+                            <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 16px 0; border-radius: 4px; color: #856404; font-size: 14px;">
+                                ⚠️ <strong>Lưu ý:</strong> Sau 3 phút mã sẽ hết hiệu lực. Vui lòng không sử dụng mã cũ để tránh bị khóa tài khoản tạm thời.
+                            </div>
+                            <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bảo mật tài khoản của mình.</p>
                             <p>Trân trọng,<br><strong>Banking App Team</strong></p>
                         </div>
                         <div class="footer">
@@ -141,10 +144,10 @@ public class EmailServiceImpl implements IEmailService {
                             <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Sử dụng mã OTP bên dưới:</p>
                             <div class="otp-box">
                                 <div class="otp-code">%s</div>
-                                <div class="note">⏱️ Mã có hiệu lực trong <strong>10 phút</strong></div>
+                                <div class="note">⏱️ Mã có hiệu lực trong <strong>180 giây (3 phút)</strong></div>
                             </div>
                             <div class="warning">
-                                ⚠️ <strong>Lưu ý bảo mật:</strong> Không chia sẻ mã OTP này với bất kỳ ai. Banking App sẽ không bao giờ yêu cầu mã OTP qua điện thoại.
+                                ⚠️ <strong>Lưu ý quan trọng:</strong> Mã OTP chỉ có hiệu lực trong vòng 3 phút (180 giây). Tuyệt đối không chia sẻ mã này với bất kỳ ai để đảm bảo an toàn cho tài khoản ngân hàng của bạn.
                             </div>
                             <p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này và đảm bảo tài khoản của bạn vẫn an toàn.</p>
                             <p>Trân trọng,<br><strong>Banking App Team</strong></p>

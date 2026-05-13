@@ -19,7 +19,8 @@ public class AuditLogEntityMapper {
      * Ta map performedBy → username, action.name() → action.
      */
     public AuditLogEntity toEntity(AuditLog domain) {
-        if (domain == null) return null;
+        if (domain == null)
+            return null;
 
         return AuditLogEntity.builder()
                 .id(domain.getId())
@@ -33,7 +34,8 @@ public class AuditLogEntityMapper {
      * Chuyển AuditLogEntity → AuditLog domain.
      */
     public AuditLog toDomain(AuditLogEntity entity) {
-        if (entity == null) return null;
+        if (entity == null)
+            return null;
 
         AuditAction action;
         try {

@@ -229,7 +229,7 @@ public class AuthServiceImpl implements IAuthService {
     // VERIFY EMAIL
     // =========================================================
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = ValidationException.class)
     public void verifyEmail(VerifyEmailRequestDto request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ValidationException("Không tìm thấy tài khoản với email này"));
@@ -293,7 +293,7 @@ public class AuthServiceImpl implements IAuthService {
     // RESET PASSWORD
     // =========================================================
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = ValidationException.class)
     public void resetPassword(ResetPasswordRequestDto request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ValidationException("Không tìm thấy tài khoản với email này"));
@@ -356,6 +356,36 @@ public class AuthServiceImpl implements IAuthService {
 
         sendOtp(user, OtpType.EMAIL_VERIFICATION);
         logger.info("Resend verification OTP for email: {}", request.getEmail());
+    }
+
+    @Override
+    @Transactional(noRollbackFor = ValidationException.class)
+    public void verifyResetOtp(VerifyEmailRequestDto request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ValidationException("Không tìm thấy tài khoản với email này"));
+
+        if (!user.isActive()) {
+            throw new ValidationException("Tài khoản không hợp lệ");
+        }
+
+        // Validate OTP
+        OtpCode otp = otpCodeRepository
+                .findLatestValidByUserIdAndType(user.getId(), OtpType.PASSWORD_RESET)
+                .orElseThrow(() -> new ValidationException(
+                        "Mã OTP không tồn tại hoặc đã hết hạn. Vui lòng yêu cầu gửi lại."));
+
+        if (!otp.isValid()) {
+            throw new ValidationException(buildOtpErrorMessage(otp));
+        }
+
+        if (!passwordEncoder.matches(request.getOtp(), otp.getCodeHash())) {
+            otp.incrementAttempt();
+            otpCodeRepository.save(otp);
+            throw new ValidationException("Mã OTP không đúng. Còn " + otp.getRemainingAttempts() + " lần thử.");
+        }
+        
+        // Note: We don't mark as used here because the final /reset-password will do it.
+        logger.info("OTP verified for password reset for email: {}", request.getEmail());
     }
 
     // =========================================================

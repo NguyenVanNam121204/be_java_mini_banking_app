@@ -37,4 +37,9 @@ public interface IAuthService {
      * Gửi lại OTP xác thực email (khi OTP cũ hết hạn)
      */
     void resendVerificationOtp(ForgotPasswordRequestDto request);
+
+    /**
+     * Chỉ xác thực OTP quên mật khẩu (không đổi mật khẩu)
+     */
+    void verifyResetOtp(VerifyEmailRequestDto request);
 }
