@@ -20,6 +20,10 @@ public class AccountEntityMapper {
                 entity.getType()
         );
         
+        if (entity.getUser() != null) {
+            account.setOwnerName(entity.getUser().getUsername());
+        }
+        
         // Preserve timestamps & version
         account.setVersion(entity.getVersion());
         account.setCreatedAt(entity.getCreatedAt());

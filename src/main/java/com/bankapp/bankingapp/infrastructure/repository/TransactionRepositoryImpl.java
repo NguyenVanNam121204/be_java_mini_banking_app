@@ -64,6 +64,14 @@ public class TransactionRepositoryImpl implements ITransactionRepository {
     }
 
     @Override
+    public Page<Transaction> findTransactionsByAccountIdAndType(Long accountId, String type, Pageable pageable) {
+        java.util.Objects.requireNonNull(accountId, "accountId must not be null");
+        com.bankapp.bankingapp.domain.model.enums.TransactionType txType = com.bankapp.bankingapp.domain.model.enums.TransactionType.valueOf(type);
+        return transactionJpaRepository.findTransactionsByAccountIdAndType(accountId, txType, pageable)
+                .map(transactionEntityMapper::toDomain);
+    }
+
+    @Override
     public Page<Transaction> findAll(Pageable pageable) {
         return transactionJpaRepository.findAll(pageable)
                 .map(transactionEntityMapper::toDomain);

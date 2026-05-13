@@ -118,6 +118,10 @@ public class User {
         updateTimestamp();
     }
 
+    public boolean hasTransactionPin() {
+        return transactionPinHash != null && !transactionPinHash.isEmpty();
+    }
+
     /**
      * Đặt lại mật khẩu (dùng trong forgot password flow)
      * 

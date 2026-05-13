@@ -312,19 +312,25 @@ public class TransactionServiceImpl implements ITransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<TransactionResponseDto> getTransactionHistory(Long accountId, int page, int size) {
+    public PageResponseDto<TransactionResponseDto> getTransactionHistory(Long accountId, int page, int size, String type) {
         User user = getCurrentAuthenticatedUser();
         
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Tài khoản không tồn tại"));
 
-        // Phân quyền: Đảm bảo tài khoản này thuộc về user đang request
+        // Phân quyền
         if (!account.getUserId().equals(user.getId())) {
             throw new IllegalArgumentException("Bạn không có quyền xem lịch sử của tài khoản này");
         }
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<Transaction> transactionPage = transactionRepository.findTransactionsByAccountId(accountId, pageable);
+        Page<Transaction> transactionPage;
+        
+        if (type != null && !type.isEmpty() && !type.equalsIgnoreCase("ALL")) {
+            transactionPage = transactionRepository.findTransactionsByAccountIdAndType(accountId, type, pageable);
+        } else {
+            transactionPage = transactionRepository.findTransactionsByAccountId(accountId, pageable);
+        }
 
         List<TransactionResponseDto> dtos = transactionPage.getContent().stream()
                 .map(transactionDtoMapper::toTransactionResponseDto)

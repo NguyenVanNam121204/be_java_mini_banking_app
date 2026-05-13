@@ -18,6 +18,9 @@ public interface TransactionJpaRepository extends JpaRepository<TransactionEntit
     @Query("SELECT t FROM TransactionEntity t WHERE t.fromAccountId = :accountId OR t.toAccountId = :accountId ORDER BY t.createdAt DESC")
     Page<TransactionEntity> findTransactionsByAccountId(@Param("accountId") Long accountId, Pageable pageable);
 
+    @Query("SELECT t FROM TransactionEntity t WHERE (t.fromAccountId = :accountId OR t.toAccountId = :accountId) AND t.type = :type ORDER BY t.createdAt DESC")
+    Page<TransactionEntity> findTransactionsByAccountIdAndType(@Param("accountId") Long accountId, @Param("type") com.bankapp.bankingapp.domain.model.enums.TransactionType type, Pageable pageable);
+
     long countByCreatedAtAfter(java.time.LocalDateTime date);
     long countByCreatedAtBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
 

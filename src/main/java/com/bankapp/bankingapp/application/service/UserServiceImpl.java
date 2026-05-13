@@ -141,6 +141,28 @@ public class UserServiceImpl implements IUserService {
         userRepository.save(user);
     }
 
+    @Override
+    @Transactional
+    public boolean verifyPin(String pin) {
+        User user = getCurrentAuthenticatedUser();
+
+        if (user.getTransactionPinHash() == null || user.getTransactionPinHash().isEmpty()) {
+            throw new IllegalArgumentException("Mã PIN chưa được thiết lập");
+        }
+
+        if (user.isPinLocked()) {
+            throw new IllegalArgumentException("Tài khoản của bạn đang bị khóa mã PIN do nhập sai quá nhiều lần");
+        }
+
+        if (!passwordEncoder.matches(pin, user.getTransactionPinHash())) {
+            user.increasePinFailedAttempts();
+            userRepository.save(user);
+            throw new IllegalArgumentException("Mã PIN hiện tại không đúng. Bạn đã nhập sai " + user.getPinFailedAttempts() + "/5 lần.");
+        }
+
+        return true;
+    }
+
     // ADMIN APIs
     
     @Override

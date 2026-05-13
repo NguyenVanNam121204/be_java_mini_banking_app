@@ -19,6 +19,7 @@ public class AccountDtoMapper {
                 .balance(account.getBalance())
                 .status(account.getStatus())
                 .type(account.getType())
+                .ownerName(account.getOwnerName())
                 .createdAt(account.getCreatedAt())
                 .updatedAt(account.getUpdatedAt())
                 .build();

@@ -66,6 +66,14 @@ public class AccountServiceImpl implements IAccountService {
             throw new IllegalArgumentException("Bạn đã đạt giới hạn mở thẻ tối đa (3 thẻ) cho một tài khoản trực tuyến. Vui lòng liên hệ quầy giao dịch để được hỗ trợ mở thêm.");
         }
 
+        // KIỂM TRA LOẠI TÀI KHOẢN: Mỗi người dùng chỉ được mở 1 loại tài khoản (ví dụ: 1 thanh toán, 1 tiết kiệm)
+        boolean typeExists = existingAccounts.stream()
+                .anyMatch(acc -> acc.getType() == request.getType());
+        
+        if (typeExists) {
+            throw new IllegalArgumentException(String.format("Bạn đã có tài khoản loại %s rồi. Mỗi khách hàng chỉ được mở tối đa 1 tài khoản cho mỗi loại.", request.getType()));
+        }
+
         Account account = new Account(
                 null,
                 generateUniqueAccountNumber(),
@@ -100,6 +108,15 @@ public class AccountServiceImpl implements IAccountService {
             throw new IllegalArgumentException("Không có quyền truy cập tài khoản này");
         }
 
+        return accountDtoMapper.toAccountResponseDto(account);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AccountResponseDto findByAccountNumber(String accountNumber) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy số tài khoản này"));
+        
         return accountDtoMapper.toAccountResponseDto(account);
     }
 

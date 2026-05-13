@@ -24,6 +24,9 @@ public class Account {
     private AccountType type;
     
     @Setter
+    private String ownerName;
+    
+    @Setter
     private Long version;
 
     @Setter

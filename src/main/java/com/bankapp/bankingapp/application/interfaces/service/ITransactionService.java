@@ -10,7 +10,7 @@ public interface ITransactionService {
     TransactionResponseDto deposit(DepositRequestDto request);
     TransactionResponseDto withdraw(WithdrawRequestDto request);
     TransactionResponseDto transfer(TransferRequestDto request);
-    PageResponseDto<TransactionResponseDto> getTransactionHistory(Long accountId, int page, int size);
+    PageResponseDto<TransactionResponseDto> getTransactionHistory(Long accountId, int page, int size, String type);
     PageResponseDto<TransactionResponseDto> getAllTransactions(int page, int size);
     TransactionResponseDto approveTransaction(Long transactionId);
     TransactionResponseDto rejectTransaction(Long transactionId);

@@ -19,6 +19,7 @@ public class AccountResponseDto {
     private BigDecimal balance;
     private AccountStatus status;
     private AccountType type;
+    private String ownerName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

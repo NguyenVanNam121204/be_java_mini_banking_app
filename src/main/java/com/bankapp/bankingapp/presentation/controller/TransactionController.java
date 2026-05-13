@@ -66,8 +66,9 @@ public class TransactionController {
     public ResponseEntity<ApiResponseDto<PageResponseDto<TransactionResponseDto>>> getHistory(
             @PathVariable Long accountId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        PageResponseDto<TransactionResponseDto> response = transactionService.getTransactionHistory(accountId, page, size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String type) {
+        PageResponseDto<TransactionResponseDto> response = transactionService.getTransactionHistory(accountId, page, size, type);
         return ResponseEntity.ok(ApiResponseDto.success("Lấy lịch sử giao dịch thành công", response));
     }
 }

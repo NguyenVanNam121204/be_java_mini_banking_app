@@ -18,6 +18,7 @@ public interface ITransactionRepository {
     Optional<Transaction> findByReferenceNumber(String referenceNumber);
     
     Page<Transaction> findTransactionsByAccountId(Long accountId, Pageable pageable);
+    Page<Transaction> findTransactionsByAccountIdAndType(Long accountId, String type, Pageable pageable);
     Page<Transaction> findAll(Pageable pageable);
     
     // Entries

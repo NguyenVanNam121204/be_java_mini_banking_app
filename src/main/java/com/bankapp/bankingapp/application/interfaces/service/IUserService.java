@@ -40,6 +40,11 @@ public interface IUserService {
      */
     void changePin(com.bankapp.bankingapp.application.dto.request.ChangePinRequestDto request);
 
+    /**
+     * Xác thực mã PIN hiện tại
+     */
+    boolean verifyPin(String pin);
+
     // ADMIN APIs
     UserResponseDto createUserByAdmin(com.bankapp.bankingapp.application.dto.request.AdminCreateUserRequestDto request);
     void lockUser(Long userId);

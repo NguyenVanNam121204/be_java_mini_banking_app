@@ -13,6 +13,8 @@ public interface IAccountService {
     List<AccountResponseDto> getMyAccounts();
     
     AccountResponseDto getMyAccountDetails(Long accountId);
+    
+    AccountResponseDto findByAccountNumber(String accountNumber);
 
     // ADMIN APIs
     List<AccountResponseDto> getAllAccounts();

@@ -33,6 +33,9 @@ public class UserResponseDto {
     @Schema(description = "Danh sách roles của user", example = "[\"ADMIN\", \"USER\"]")
     private Set<String> roles;
 
+    @Schema(description = "Người dùng đã thiết lập mã PIN chưa", example = "true")
+    private boolean hasPin;
+
     @Schema(description = "Thời gian tạo tài khoản")
     private LocalDateTime createdAt;
 

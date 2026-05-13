@@ -95,4 +95,12 @@ public class UserController {
         userService.changePin(request);
         return ResponseEntity.ok(ApiResponseDto.success("Đổi mã PIN thành công", null));
     }
+
+    @Operation(summary = "Xác thực mã PIN", description = "Kiểm tra mã PIN hiện tại có chính xác không")
+    @PostMapping("/api/users/verify-pin")
+    public ResponseEntity<ApiResponseDto<Boolean>> verifyPin(@RequestBody java.util.Map<String, String> request) {
+        String pin = request.get("pin");
+        boolean isValid = userService.verifyPin(pin);
+        return ResponseEntity.ok(ApiResponseDto.success("Xác thực mã PIN thành công", isValid));
+    }
 }

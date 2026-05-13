@@ -48,4 +48,11 @@ public class AccountController {
         AccountResponseDto account = accountService.getMyAccountDetails(id);
         return ResponseEntity.ok(ApiResponseDto.success("Lấy thông tin chi tiết tài khoản thành công", account));
     }
+
+    @Operation(summary = "Tìm kiếm tài khoản bằng số tài khoản (Để chuyển tiền)")
+    @GetMapping("/search/{accountNumber}")
+    public ResponseEntity<ApiResponseDto<AccountResponseDto>> searchByAccountNumber(@PathVariable String accountNumber) {
+        AccountResponseDto account = accountService.findByAccountNumber(accountNumber);
+        return ResponseEntity.ok(ApiResponseDto.success("Tìm thấy thông tin tài khoản", account));
+    }
 }

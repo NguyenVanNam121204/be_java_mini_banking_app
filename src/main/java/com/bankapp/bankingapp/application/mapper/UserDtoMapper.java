@@ -82,6 +82,7 @@ public class UserDtoMapper {
                 .email(user.getEmail())
                 .status(user.getStatus().name())
                 .roles(extractRoleNames(user.getRoles()))
+                .hasPin(user.hasTransactionPin())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
