@@ -21,44 +21,51 @@ public class IdempotencyInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) throws Exception {
-        if (handler instanceof HandlerMethod handlerMethod) {
-            Idempotent idempotent = handlerMethod.getMethodAnnotation(Idempotent.class);
-            if (idempotent != null) {
-                String idempotencyKey = request.getHeader("Idempotency-Key");
-                
-                if (idempotencyKey == null || idempotencyKey.trim().isEmpty()) {
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    response.setContentType("application/json;charset=UTF-8");
-                    response.getWriter().write("{\"status\":400,\"error\":\"Bad Request\",\"message\":\"Header 'Idempotency-Key' là bắt buộc cho giao dịch này.\",\"path\":\"" + request.getRequestURI() + "\"}");
-                    return false;
-                }
-
-                if (idempotencyKey.length() > 100) {
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    response.setContentType("application/json;charset=UTF-8");
-                    response.getWriter().write("{\"status\":400,\"error\":\"Bad Request\",\"message\":\"Header 'Idempotency-Key' quá dài (tối đa 100 ký tự).\",\"path\":\"" + request.getRequestURI() + "\"}");
-                    return false;
-                }
-
-                // Kiểm tra xem key đã tồn tại chưa (Giao dịch đang xử lý hoặc đã xong)
-                if (idempotencyKeyJpaRepository.existsById(idempotencyKey)) {
-                    response.setStatus(HttpServletResponse.SC_CONFLICT);
-                    response.setContentType("application/json;charset=UTF-8");
-                    response.getWriter().write("{\"status\":409,\"error\":\"Conflict\",\"message\":\"Giao dịch có Idempotency-Key này đã tồn tại hoặc đang được xử lý.\",\"path\":\"" + request.getRequestURI() + "\"}");
-                    return false;
-                }
-
-                try {
-                    // Cố gắng insert key vào DB, nếu có 2 luồng cùng lúc insert sẽ văng DataIntegrityViolationException
-                    idempotencyKeyJpaRepository.saveAndFlush(new IdempotencyKeyEntity(idempotencyKey, LocalDateTime.now()));
-                } catch (DataIntegrityViolationException ex) {
-                    response.setStatus(HttpServletResponse.SC_CONFLICT);
-                    response.setContentType("application/json;charset=UTF-8");
-                    response.getWriter().write("{\"status\":409,\"error\":\"Conflict\",\"message\":\"Giao dịch có Idempotency-Key này đang được xử lý.\",\"path\":\"" + request.getRequestURI() + "\"}");
-                    return false;
-                }
-            }
+        if (!(handler instanceof HandlerMethod handlerMethod)) {
+            return true;
         }
+
+        Idempotent idempotent = handlerMethod.getMethodAnnotation(Idempotent.class);
+        if (idempotent == null) {
+            return true;
+        }
+
+        String idempotencyKey = request.getHeader("Idempotency-Key");
+
+        if (idempotencyKey == null || idempotencyKey.trim().isEmpty()) {
+            writeError(response, HttpServletResponse.SC_BAD_REQUEST, "Bad Request",
+                    "Header 'Idempotency-Key' is required for this transaction.", request.getRequestURI());
+            return false;
+        }
+
+        if (idempotencyKey.length() > 100) {
+            writeError(response, HttpServletResponse.SC_BAD_REQUEST, "Bad Request",
+                    "Header 'Idempotency-Key' is too long. Maximum length is 100 characters.", request.getRequestURI());
+            return false;
+        }
+
+        if (idempotencyKeyJpaRepository.existsById(idempotencyKey)) {
+            writeError(response, HttpServletResponse.SC_CONFLICT, "Conflict",
+                    "A transaction with this Idempotency-Key already exists or is being processed.", request.getRequestURI());
+            return false;
+        }
+
+        try {
+            idempotencyKeyJpaRepository.saveAndFlush(new IdempotencyKeyEntity(idempotencyKey, LocalDateTime.now()));
+        } catch (DataIntegrityViolationException ex) {
+            writeError(response, HttpServletResponse.SC_CONFLICT, "Conflict",
+                    "A transaction with this Idempotency-Key is being processed.", request.getRequestURI());
+            return false;
+        }
+
         return true;
+    }
+
+    private void writeError(HttpServletResponse response, int status, String error, String message, String path) throws Exception {
+        response.setStatus(status);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(String.format(
+                "{\"status\":%d,\"success\":false,\"error\":\"%s\",\"message\":\"%s\",\"path\":\"%s\"}",
+                status, error, message, path));
     }
 }

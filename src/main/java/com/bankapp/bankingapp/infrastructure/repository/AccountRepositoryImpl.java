@@ -38,8 +38,21 @@ public class AccountRepositoryImpl implements IAccountRepository {
     }
 
     @Override
+    public Optional<Account> findByIdForUpdate(Long id) {
+        java.util.Objects.requireNonNull(id, "id must not be null");
+        return accountJpaRepository.findWithLockById(id)
+                .map(accountEntityMapper::toDomain);
+    }
+
+    @Override
     public Optional<Account> findByAccountNumber(String accountNumber) {
         return accountJpaRepository.findByAccountNumber(accountNumber)
+                .map(accountEntityMapper::toDomain);
+    }
+
+    @Override
+    public Optional<Account> findByAccountNumberForUpdate(String accountNumber) {
+        return accountJpaRepository.findWithLockByAccountNumber(accountNumber)
                 .map(accountEntityMapper::toDomain);
     }
 

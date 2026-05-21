@@ -9,8 +9,12 @@ public interface IAccountRepository {
     Account save(Account account);
     
     Optional<Account> findById(Long id);
+
+    Optional<Account> findByIdForUpdate(Long id);
     
     Optional<Account> findByAccountNumber(String accountNumber);
+
+    Optional<Account> findByAccountNumberForUpdate(String accountNumber);
     
     List<Account> findByUserId(Long userId);
     

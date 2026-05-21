@@ -4,11 +4,14 @@ import com.bankapp.bankingapp.application.dto.response.UserResponseDto;
 import com.bankapp.bankingapp.application.interfaces.repository.IUserRepository;
 import com.bankapp.bankingapp.application.interfaces.repository.IRoleRepository;
 import com.bankapp.bankingapp.application.interfaces.service.IAuditService;
+import com.bankapp.bankingapp.application.interfaces.service.IEmailService;
+import com.bankapp.bankingapp.application.interfaces.service.INotificationService;
 import com.bankapp.bankingapp.application.interfaces.service.IUserService;
 import com.bankapp.bankingapp.domain.model.enums.AuditAction;
 import com.bankapp.bankingapp.application.mapper.UserDtoMapper;
 import com.bankapp.bankingapp.domain.model.User;
 import com.bankapp.bankingapp.domain.model.Role;
+import com.bankapp.bankingapp.domain.model.enums.NotificationType;
 import com.bankapp.bankingapp.domain.model.enums.UserStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,13 +34,17 @@ public class UserServiceImpl implements IUserService {
     private final UserDtoMapper userDtoMapper;
     private final PasswordEncoder passwordEncoder;
     private final IAuditService auditService;
+    private final INotificationService notificationService;
+    private final IEmailService emailService;
 
-    public UserServiceImpl(IUserRepository userRepository, IRoleRepository roleRepository, UserDtoMapper userDtoMapper, PasswordEncoder passwordEncoder, IAuditService auditService) {
+    public UserServiceImpl(IUserRepository userRepository, IRoleRepository roleRepository, UserDtoMapper userDtoMapper, PasswordEncoder passwordEncoder, IAuditService auditService, INotificationService notificationService, IEmailService emailService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userDtoMapper = userDtoMapper;
         this.passwordEncoder = passwordEncoder;
         this.auditService = auditService;
+        this.notificationService = notificationService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -93,6 +100,12 @@ public class UserServiceImpl implements IUserService {
 
         user.forceChangePassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+        notificationService.notifyUser(
+                user.getId(),
+                NotificationType.SECURITY,
+                "Mật khẩu vừa được thay đổi",
+                "Mật khẩu đăng nhập của bạn đã được cập nhật thành công. Nếu đây không phải thao tác của bạn, vui lòng đổi mật khẩu ngay.");
+        emailService.sendPasswordChangedAlert(user.getEmail(), user.getUsername());
     }
 
     @Override
@@ -110,6 +123,11 @@ public class UserServiceImpl implements IUserService {
 
         user.setTransactionPin(passwordEncoder.encode(request.getPin()));
         userRepository.save(user);
+        notificationService.notifyUser(
+                user.getId(),
+                NotificationType.SECURITY,
+                "Đã thiết lập mã PIN giao dịch",
+                "Mã PIN giao dịch đã được thiết lập thành công. Từ bây giờ, bạn có thể sử dụng PIN để xác nhận giao dịch.");
     }
 
     @Override
@@ -139,6 +157,12 @@ public class UserServiceImpl implements IUserService {
         user.resetPinFailedAttempts();
         user.setTransactionPin(passwordEncoder.encode(request.getNewPin()));
         userRepository.save(user);
+        notificationService.notifyUser(
+                user.getId(),
+                NotificationType.SECURITY,
+                "Mã PIN vừa được thay đổi",
+                "Mã PIN giao dịch của bạn đã được cập nhật thành công. Nếu đây không phải thao tác của bạn, vui lòng liên hệ hỗ trợ ngay.");
+        emailService.sendPinChangedAlert(user.getEmail(), user.getUsername());
     }
 
     @Override

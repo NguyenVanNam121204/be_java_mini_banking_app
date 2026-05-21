@@ -9,15 +9,24 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
 
-    @EntityGraph(attributePaths = "roles")
+    @Override
+    @EntityGraph(attributePaths = {"roles", "roles.permissions"})
+    Optional<UserEntity> findById(Long id);
+
+    @Override
+    @EntityGraph(attributePaths = {"roles", "roles.permissions"})
+    List<UserEntity> findAll();
+
+    @EntityGraph(attributePaths = {"roles", "roles.permissions"})
     Optional<UserEntity> findByUsername(String username);
 
-    @EntityGraph(attributePaths = "roles")
+    @EntityGraph(attributePaths = {"roles", "roles.permissions"})
     Optional<UserEntity> findByEmail(String email);
 
     boolean existsByUsername(String username);
@@ -26,6 +35,7 @@ public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
 
     long countByStatus(com.bankapp.bankingapp.domain.model.enums.UserStatus status);
 
+    @EntityGraph(attributePaths = {"roles", "roles.permissions"})
     @Query("SELECT u FROM UserEntity u " +
            "WHERE (:keyword = '' OR LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
            "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')))")

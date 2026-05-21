@@ -11,6 +11,7 @@ import com.bankapp.bankingapp.domain.model.enums.AuditAction;
 import com.bankapp.bankingapp.application.interfaces.service.IAuthService;
 import com.bankapp.bankingapp.application.interfaces.service.IEmailService;
 import com.bankapp.bankingapp.application.interfaces.service.IJwtTokenProvider;
+import com.bankapp.bankingapp.application.interfaces.service.INotificationService;
 import com.bankapp.bankingapp.application.mapper.AuthDtoMapper;
 import com.bankapp.bankingapp.application.mapper.UserDtoMapper;
 import com.bankapp.bankingapp.application.validator.UserValidator;
@@ -19,6 +20,7 @@ import com.bankapp.bankingapp.domain.model.OtpCode;
 import com.bankapp.bankingapp.domain.model.RefreshToken;
 import com.bankapp.bankingapp.domain.model.Role;
 import com.bankapp.bankingapp.domain.model.User;
+import com.bankapp.bankingapp.domain.model.enums.NotificationType;
 import com.bankapp.bankingapp.domain.model.enums.OtpType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +54,7 @@ public class AuthServiceImpl implements IAuthService {
     private final IOtpCodeRepository otpCodeRepository;
     private final IEmailService emailService;
     private final IAuditService auditService;
+    private final INotificationService notificationService;
 
     @Value("${app.otp.expiration-minutes:10}")
     private int otpExpirationMinutes;
@@ -67,7 +70,8 @@ public class AuthServiceImpl implements IAuthService {
             IRefreshTokenRepository refreshTokenRepository,
             IOtpCodeRepository otpCodeRepository,
             IEmailService emailService,
-            IAuditService auditService) {
+            IAuditService auditService,
+            INotificationService notificationService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -80,6 +84,7 @@ public class AuthServiceImpl implements IAuthService {
         this.otpCodeRepository = otpCodeRepository;
         this.emailService = emailService;
         this.auditService = auditService;
+        this.notificationService = notificationService;
     }
 
     // =========================================================
@@ -330,6 +335,12 @@ public class AuthServiceImpl implements IAuthService {
 
         user.forceChangePassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+        notificationService.notifyUser(
+                user.getId(),
+                NotificationType.SECURITY,
+                "Mật khẩu vừa được đặt lại",
+                "Mật khẩu đăng nhập của bạn đã được đặt lại thành công. Tất cả phiên đăng nhập cũ đã được thu hồi để bảo vệ tài khoản.");
+        emailService.sendPasswordChangedAlert(user.getEmail(), user.getUsername());
 
         // Revoke tất cả refresh token (bảo mật: logout khỏi mọi device)
         refreshTokenRepository.deleteByUserId(user.getId());

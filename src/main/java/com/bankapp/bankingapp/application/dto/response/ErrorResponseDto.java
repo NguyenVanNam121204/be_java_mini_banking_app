@@ -20,6 +20,7 @@ public class ErrorResponseDto {
 
     private LocalDateTime timestamp;
     private int status;
+    private boolean success;
     private String error;
     private String message;
     private String path;
@@ -41,6 +42,7 @@ public class ErrorResponseDto {
         return ErrorResponseDto.builder()
                 .timestamp(LocalDateTime.now())
                 .status(status)
+                .success(false)
                 .error(error)
                 .message(message)
                 .path(path)
@@ -51,6 +53,7 @@ public class ErrorResponseDto {
         return ErrorResponseDto.builder()
                 .timestamp(LocalDateTime.now())
                 .status(status)
+                .success(false)
                 .error(error)
                 .message(message)
                 .path(path)
