@@ -193,6 +193,13 @@ POST http://localhost:8080/api/auth/login
 
 📧 **Admin Email**: `nambo@gmail.com`
 
+### 7. Run the Frontend Applications
+To interact with the APIs via a User Interface, please download and run the frontend applications from the link below:
+
+👉 **[Get the Frontend Code Here (React & Flutter)](https://github.com/NguyenVanNam121204/Frontend-MiniBanking)**
+
+The frontend repository includes both the **Admin Web Portal (React)** and the **User Mobile App (Flutter)**.
+
 ---
 
 ## 📁 Project Structure
